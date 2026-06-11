@@ -1,0 +1,4 @@
+interface:
+  display_name: "Subagent Verify"
+  short_description: "Independent review and fix loop"
+  default_prompt: "Use $subagent-verify after implementation to run an independent review and fix valid issues."
