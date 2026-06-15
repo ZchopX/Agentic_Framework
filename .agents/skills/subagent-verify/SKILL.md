@@ -31,6 +31,7 @@ Use a sub-agent as a fresh reviewer. The main agent remains responsible for judg
    - Read the selected reference file as a prompt template.
    - Fill the template with task-local pointers before sending it: repository root, plan path if any, changed file paths or PR/diff source, validation commands already run with pass/fail status, artifact paths that need inspection, and the user's requested outcome.
    - Keep the filled prompt evidence-oriented: ask the sub-agent to inspect files, diffs, plans, tests, and artifacts directly.
+   - Make the sub-agent role explicitly read-only. The sub-agent must not modify files, rewrite plans, update artifacts, run formatters that change files, or apply fixes. Only the main agent triages findings and applies valid corrections.
    - Do not include the main agent's intended fixes, suspected conclusions, or self-evaluation.
 
 4. Triage the sub-agent output:
@@ -72,6 +73,7 @@ The filled sub-agent prompt should contain:
 - Review mode: the selected template name.
 - Task outcome: what the main agent just completed.
 - Evidence pointers: paths, commands, and artifact names instead of copied large content.
+- Read-only instruction: the sub-agent must inspect and report only, and must not modify files or artifacts.
 - Review instructions: the selected template content.
 - Output contract: findings first, severity order, file references when possible, suggested checks, or `No findings`.
 

@@ -59,8 +59,8 @@ The skill should work when another Codex instance uses it under normal context p
 2. Invoke each forward-test with `fork_context: false`.
 3. Pass the skill path and scenario artifact paths in the sub-agent prompt.
 4. Record the spawned agent id, prompt summary, and completion status in `results.md`.
-5. If `multi_agent_v1.spawn_agent` or `fork_context: false` is unavailable, stop and report the plan as blocked.
-6. Do not replace forward-tests with manual review; manual review does not validate the skill's fresh-context behavior.
+5. If `multi_agent_v1.spawn_agent` or `fork_context: false` is unavailable, stop and report the forward-test suite as blocked.
+6. Do not count manual review as a substitute for forward-tests; manual review can only be recorded as a separate fallback check because it does not validate the skill's fresh-context behavior.
 
 ## Phase 2: Prepare Fixtures
 
@@ -203,8 +203,11 @@ Validation-output checklist:
 - Repository root.
 - User request.
 - Task outcome.
-- Validation files, commands, logs, reports, screenshots, or generated artifact paths.
+- Validation files.
+- Commands already run and pass/fail status.
 - Claimed validation result.
+- Artifacts to inspect, or `none`.
+- Changed file paths or explicit diff source, or `none`.
 - Known constraints.
 
 ## Phase 5: Evaluate Results
