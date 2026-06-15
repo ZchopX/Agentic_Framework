@@ -1,4 +1,0 @@
-interface:
-  display_name: "Russian Human Rewriter"
-  short_description: "Natural Russian academic rewriting"
-  default_prompt: "Use $russian-human-rewriter to rewrite this Russian academic text so it sounds human-written while preserving meaning."
