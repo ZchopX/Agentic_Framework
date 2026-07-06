@@ -22,6 +22,8 @@ Provide:
 - Tests added or updated and outcomes
 - Validation command outcomes
 - Deviations from plan with reasons
+- Documentation changed or explicit no-docs-impact note
+- Whether `plan-closeout` should run now, after a commit, or not at all
 - Remaining risks or follow-up actions
 
 ## Guardrails

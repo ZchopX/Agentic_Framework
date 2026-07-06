@@ -15,6 +15,8 @@ It is written for your migration case: you previously used command-style prompts
   - understand repo
   - plan
   - implement
+  - close out completed plans
+  - maintain docs
   - write PRD
   - generate rules
   - bootstrap
@@ -70,12 +72,14 @@ Active `.agents` Markdown files should be UTF-8 without BOM.
 For most feature work, use this sequence:
 
 1. `repo-primer`
-2. `feature-planner`
-3. `plan-executor`
-4. `atomic-commit`
+2. `prd-writer` when requirements are not already settled
+3. `repo-docs-bootstrap` after a new PRD or when durable docs are missing
+4. `feature-planner`
+5. `plan-executor`
+6. `atomic-commit`
+7. `plan-closeout`
 
 Optional before/after:
-- `prd-writer` (if requirements are still fuzzy)
 - `rules-template-author` (if project conventions changed)
 - `project-bootstrap` (for local setup)
 
@@ -140,11 +144,31 @@ Typical prompt:
 
 Expected output:
 - Implemented code changes + execution report.
+- Note on documentation impact and whether `plan-closeout` should run.
 
 Claude-era equivalent:
 - roughly `/execute`
 
-## D) `prd-writer`
+## D) `plan-closeout`
+Path: `.agents/skills/plan-closeout/SKILL.md`
+
+Use when:
+- A plan has been implemented and should be archived.
+- You need completion metadata and affected docs updated from actual Git/filesystem changes.
+
+What it does:
+- Reads the completed plan and repo state.
+- Records status, completion date, commit hash or pending-commit state, validation results, docs updated, and deviations.
+- Moves the plan to `.agents/plans/archive/`.
+- Updates docs directly affected by the completed work.
+
+Typical prompt:
+- `Use plan-closeout on .agents/plans/add-x.md after the implementation commit.`
+
+Expected output:
+- Archived plan path, metadata, docs changed, validation summary, and unresolved gaps.
+
+## E) `prd-writer`
 Path: `.agents/skills/prd-writer/SKILL.md`
 
 Use when:
@@ -158,11 +182,30 @@ Typical prompt:
 
 Expected output:
 - Decision-oriented PRD in markdown.
+- Handoff recommendation to `repo-docs-bootstrap` when durable docs should be established before planning.
 
 Claude-era equivalent:
 - roughly `/create-prd`
 
-## E) `rules-template-author`
+## F) `repo-docs-bootstrap`
+Path: `.agents/skills/repo-docs-bootstrap/SKILL.md`
+
+Use when:
+- A PRD has just been created and the repo needs durable docs before feature planning.
+- An existing repo lacks reliable README, architecture, development, decision, changelog, or AI-facing docs.
+
+What it does:
+- Classifies the repo and discovers existing docs.
+- Creates or updates the smallest useful documentation baseline.
+- Preserves PRD-to-plan traceability and AI context handoff rules.
+
+Typical prompt:
+- `Use repo-docs-bootstrap after .agents/PRD.md to establish durable docs for this repo.`
+
+Expected output:
+- Created/updated docs, assumptions, unresolved gaps, and follow-up validations.
+
+## G) `rules-template-author`
 Path: `.agents/skills/rules-template-author/SKILL.md`
 
 Use when:
@@ -180,7 +223,7 @@ Expected output:
 Claude-era equivalent:
 - roughly `/create-rules`
 
-## F) `project-bootstrap`
+## H) `project-bootstrap`
 Path: `.agents/skills/project-bootstrap/SKILL.md`
 
 Use when:
@@ -198,7 +241,7 @@ Expected output:
 Claude-era equivalent:
 - roughly `/init-project`
 
-## G) `atomic-commit`
+## I) `atomic-commit`
 Path: `.agents/skills/atomic-commit/SKILL.md`
 
 Use when:
@@ -216,7 +259,7 @@ Expected output:
 Claude-era equivalent:
 - roughly `/commit`
 
-## H) `model-test-pipeline`
+## J) `model-test-pipeline`
 Path: `.agents/skills/model-test-pipeline/SKILL.md`
 
 Use when:
@@ -240,7 +283,9 @@ Expected output:
 | `/prime` | `repo-primer` | `Prime this repo and summarize architecture and conventions.` |
 | `/plan-feature` | `feature-planner` | `Plan feature X and save under .agents/plans/...` |
 | `/execute` | `plan-executor` | `Execute .agents/plans/<file>.md completely.` |
+| `/docs-update` or closeout habit | `plan-closeout` | `Close out .agents/plans/<file>.md, archive it, and update affected docs.` |
 | `/create-prd` | `prd-writer` | `Create/update PRD for X at <path>.` |
+| post-PRD docs setup | `repo-docs-bootstrap` | `Bootstrap durable docs from this PRD and current repo state.` |
 | `/create-rules` | `rules-template-author` | `Update AGENTS template from current repo patterns.` |
 | `/init-project` | `project-bootstrap` | `Bootstrap local environment and run health checks.` |
 | `/commit` | `atomic-commit` | `Create a single atomic typed commit for current changes.` |
@@ -270,13 +315,16 @@ Expected output:
 3. Mixing planning and execution unintentionally.
 - Fix: First request `feature-planner`, then request `plan-executor`.
 
-4. Using legacy folder as active source.
+4. Skipping docs after implementation.
+- Fix: Use `plan-closeout` after execution and commit, or record `completion_commit: pending` before the commit exists.
+
+5. Using legacy folder as active source.
 - Fix: Treat `.agents/legacy/claude-commands/` as archive only.
 
-5. Treating archived plans as active planning context during priming.
+6. Treating archived plans as active planning context during priming.
 - Fix: Exclude `.agents/plans/archive/` from default priming scope; include it only when explicitly requested.
 
-## H+1) `docx`
+## K) `docx`
 Path: `.agents/skills/docx/SKILL.md`
 
 Use when:
@@ -285,7 +333,7 @@ Use when:
 Typical prompt:
 - `Create a Word report for X at output/report.docx.`
 
-## H+2) `pptx`
+## L) `pptx`
 Path: `.agents/skills/pptx/SKILL.md`
 
 Use when:
@@ -304,7 +352,7 @@ Dependencies (install before first use):
 - LibreOffice (`soffice`) — PDF conversion
 - Poppler (`pdftoppm`) — PDF to images
 
-## H+3) `statquest-ultimate`
+## M) `statquest-ultimate`
 Path: `.agents/skills/statquest-ultimate/SKILL.md`
 
 Use when:
@@ -319,8 +367,10 @@ You currently have these active skills:
 - `repo-primer`
 - `feature-planner`
 - `model-test-pipeline`
+- `plan-closeout`
 - `plan-executor`
 - `prd-writer`
+- `repo-docs-bootstrap`
 - `rules-template-author`
 - `project-bootstrap`
 - `atomic-commit`

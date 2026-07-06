@@ -74,6 +74,15 @@ Optional:
 - Git CLI, useful for inspecting changed files and diffs.
 - Project-specific test, lint, build, and runtime tools.
 
+## plan-closeout
+
+Required:
+- Git CLI, for commit, status, diff, and recent-history discovery.
+
+Optional:
+- Ripgrep (`rg`), preferred for documentation discovery.
+- Project-specific validation tools needed to confirm the completed plan.
+
 ## pptx
 
 Required for the core workflows described in `pptx/SKILL.md`:
@@ -118,6 +127,15 @@ Required:
 Optional:
 - Ripgrep (`rg`), preferred for fast file discovery.
 - Git CLI, for branch, status, and recent commit context.
+
+## repo-docs-bootstrap
+
+Required:
+- None beyond normal file read/write access.
+
+Optional:
+- Ripgrep (`rg`), preferred for documentation and source discovery.
+- Git CLI, useful for recent-history and current-state context.
 
 ## rules-template-author
 

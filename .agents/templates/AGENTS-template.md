@@ -48,9 +48,11 @@ Skills are stored in `.agents/skills/<skill-name>/SKILL.md`. Apply a skill when 
 | `atomic-commit` | User asks to create a commit from current changes | `.agents/skills/atomic-commit/SKILL.md` |
 | `feature-planner` | User asks to plan a feature before coding | `.agents/skills/feature-planner/SKILL.md` |
 | `model-test-pipeline` | User asks to research a repo/model first and then run universal econometric testing with generic checks plus auto profile checks | `.agents/skills/model-test-pipeline/SKILL.md` |
+| `plan-closeout` | User asks to archive a completed plan, record completion metadata, and update affected docs | `.agents/skills/plan-closeout/SKILL.md` |
 | `plan-executor` | User asks to implement from an existing plan | `.agents/skills/plan-executor/SKILL.md` |
 | `prd-writer` | User asks for a PRD or requirements document | `.agents/skills/prd-writer/SKILL.md` |
 | `project-bootstrap` | User asks to initialize local dev environment | `.agents/skills/project-bootstrap/SKILL.md` |
+| `repo-docs-bootstrap` | User asks to establish durable docs after a PRD or in an under-documented repo | `.agents/skills/repo-docs-bootstrap/SKILL.md` |
 | `repo-primer` | User asks for repo priming/onboarding/architecture summary | `.agents/skills/repo-primer/SKILL.md` |
 | `rules-template-author` | User asks to create/refine `.agents/templates/AGENTS-template.md` | `.agents/skills/rules-template-author/SKILL.md` |
 
@@ -130,4 +132,5 @@ Run before merge:
 ## Repository Notes
 
 - {project-specific constraints}
+- All agentic files belong under `.agents`; completed plans belong under `.agents/plans/archive`.
 - All `.agents` Markdown files should be UTF-8 without BOM.

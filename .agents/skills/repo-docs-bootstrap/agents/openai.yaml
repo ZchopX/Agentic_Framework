@@ -1,0 +1,5 @@
+interface:
+  display_name: "Repo Docs Bootstrap"
+  short_description: "Create durable repo docs for humans and agents"
+  default_prompt: "Use $repo-docs-bootstrap after the PRD to establish or refresh durable repository docs."
+

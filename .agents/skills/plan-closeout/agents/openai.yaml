@@ -1,0 +1,5 @@
+interface:
+  display_name: "Plan Closeout"
+  short_description: "Archive completed plans and refresh docs"
+  default_prompt: "Use $plan-closeout to archive the completed plan, record completion metadata, and update affected docs."
+

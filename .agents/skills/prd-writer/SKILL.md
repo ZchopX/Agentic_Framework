@@ -11,6 +11,9 @@ Deliver a complete, scannable PRD suitable for implementation planning.
 ## Default Output Path
 `PRD.md` unless the user provides a different path.
 
+## Recommended Handoff
+After creating or materially updating a PRD, recommend `repo-docs-bootstrap` when the repo needs durable README, architecture, development, decision, changelog, or AI-facing docs before feature planning.
+
 ## Required Sections
 1. Executive Summary
 2. Mission and Principles
@@ -31,4 +34,5 @@ Deliver a complete, scannable PRD suitable for implementation planning.
 - Distinguish confirmed facts vs assumptions.
 - Make requirements testable and measurable.
 - Keep the document decision-oriented, not marketing-oriented.
+- Link or name expected follow-up plans when they are known.
 
