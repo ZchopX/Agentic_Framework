@@ -1,6 +1,6 @@
 ---
 name: rules-template-author
-description: Generate or refine the Codex rules template at `.agent/templates/AGENTS-template.md` from repository analysis. Use when creating project-wide agent conventions.
+description: Generate or refine the Codex rules template at `.agents/templates/AGENTS-template.md` from repository analysis. Use when creating project-wide agent conventions.
 ---
 
 # Rules Template Author
@@ -11,7 +11,7 @@ Maintain a reusable AGENTS template tailored to this repository.
 ## Workflow
 1. Analyze project type, stack, and repository layout.
 2. Extract coding conventions, testing conventions, and validation commands.
-3. Write or update `.agent/templates/AGENTS-template.md`.
+3. Write or update `.agents/templates/AGENTS-template.md`.
 4. Keep content concise and operational.
 
 ## Template Must Cover

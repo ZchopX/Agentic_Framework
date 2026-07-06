@@ -22,14 +22,14 @@ It is written for your migration case: you previously used command-style prompts
 
 ## Practical difference
 - Old style: `/plan-feature add X`
-- New style: `Plan feature X and save the plan in .agent/plans.`
+- New style: `Plan feature X and save the plan in .agents/plans.`
 
 You do not need slash commands anymore.
 
 ## 2. How Skills Work Overall
 
 ## Skill anatomy
-Each skill is a folder under `.agent/skills/<skill-name>/` with a required `SKILL.md`.
+Each skill is a folder under `.agents/skills/<skill-name>/` with a required `SKILL.md`.
 
 Each `SKILL.md` has:
 1. YAML frontmatter:
@@ -56,14 +56,14 @@ You can trigger skills in two ways:
 4. Ask for artifacts directly (`write the plan`, `update template`, `run validation`).
 
 ## File conventions in this repo
-- Active skill workflows: `.agent/skills/`
-- Planning outputs: `.agent/plans/`
-- Guidance templates: `.agent/templates/`
-- Supporting docs: `.agent/references/`
-- Legacy archived command docs: `.agent/legacy/claude-commands/`
+- Active skill workflows: `.agents/skills/`
+- Planning outputs: `.agents/plans/`
+- Guidance templates: `.agents/templates/`
+- Supporting docs: `.agents/reference/`
+- Legacy archived command docs: `.agents/legacy/claude-commands/`
 
 ## Encoding convention
-Active `.agent` Markdown files should be UTF-8 without BOM.
+Active `.agents` Markdown files should be UTF-8 without BOM.
 
 ## 3. Recommended End-to-End Flow
 
@@ -82,7 +82,7 @@ Optional before/after:
 ## 4. Skill-by-Skill Guide
 
 ## A) `repo-primer`
-Path: `.agent/skills/repo-primer/SKILL.md`
+Path: `.agents/skills/repo-primer/SKILL.md`
 
 Use when:
 - You want a fast architecture/context briefing before changes.
@@ -107,17 +107,17 @@ Claude-era equivalent:
 - roughly `/prime`
 
 ## B) `feature-planner`
-Path: `.agent/skills/feature-planner/SKILL.md`
+Path: `.agents/skills/feature-planner/SKILL.md`
 
 Use when:
 - You want a decision-complete implementation plan before coding.
 
 What it does:
 - Analyzes current code patterns and integration points.
-- Writes plan file under `.agent/plans/`.
+- Writes plan file under `.agents/plans/`.
 
 Typical prompt:
-- `Create a decision-complete plan for adding X. Save it as .agent/plans/add-x.md.`
+- `Create a decision-complete plan for adding X. Save it as .agents/plans/add-x.md.`
 
 Expected output:
 - Plan with scope, tasks, tests, validations, risks, and acceptance criteria.
@@ -126,7 +126,7 @@ Claude-era equivalent:
 - roughly `/plan-feature`
 
 ## C) `plan-executor`
-Path: `.agent/skills/plan-executor/SKILL.md`
+Path: `.agents/skills/plan-executor/SKILL.md`
 
 Use when:
 - You already have a plan file and want implementation.
@@ -136,7 +136,7 @@ What it does:
 - Reports completed work, validations, and deviations.
 
 Typical prompt:
-- `Execute .agent/plans/add-x.md end-to-end, including tests and validations.`
+- `Execute .agents/plans/add-x.md end-to-end, including tests and validations.`
 
 Expected output:
 - Implemented code changes + execution report.
@@ -145,7 +145,7 @@ Claude-era equivalent:
 - roughly `/execute`
 
 ## D) `prd-writer`
-Path: `.agent/skills/prd-writer/SKILL.md`
+Path: `.agents/skills/prd-writer/SKILL.md`
 
 Use when:
 - You need a structured PRD before planning or implementation.
@@ -154,7 +154,7 @@ What it does:
 - Produces/updates PRD sections: goals, scope, users, architecture, risks, phases, criteria.
 
 Typical prompt:
-- `Write a PRD for feature X to .agent/PRD.md based on this discussion.`
+- `Write a PRD for feature X to .agents/PRD.md based on this discussion.`
 
 Expected output:
 - Decision-oriented PRD in markdown.
@@ -163,16 +163,16 @@ Claude-era equivalent:
 - roughly `/create-prd`
 
 ## E) `rules-template-author`
-Path: `.agent/skills/rules-template-author/SKILL.md`
+Path: `.agents/skills/rules-template-author/SKILL.md`
 
 Use when:
 - You want to update project-wide agent rules template.
 
 What it does:
-- Generates/refines `.agent/templates/AGENTS-template.md` based on repository patterns.
+- Generates/refines `.agents/templates/AGENTS-template.md` based on repository patterns.
 
 Typical prompt:
-- `Update .agent/templates/AGENTS-template.md from current codebase conventions.`
+- `Update .agents/templates/AGENTS-template.md from current codebase conventions.`
 
 Expected output:
 - Refined AGENTS template (template-first approach).
@@ -181,7 +181,7 @@ Claude-era equivalent:
 - roughly `/create-rules`
 
 ## F) `project-bootstrap`
-Path: `.agent/skills/project-bootstrap/SKILL.md`
+Path: `.agents/skills/project-bootstrap/SKILL.md`
 
 Use when:
 - You need environment setup and health checks.
@@ -199,7 +199,7 @@ Claude-era equivalent:
 - roughly `/init-project`
 
 ## G) `atomic-commit`
-Path: `.agent/skills/atomic-commit/SKILL.md`
+Path: `.agents/skills/atomic-commit/SKILL.md`
 
 Use when:
 - You want one clean commit from current changes.
@@ -217,7 +217,7 @@ Claude-era equivalent:
 - roughly `/commit`
 
 ## H) `model-test-pipeline`
-Path: `.agent/skills/model-test-pipeline/SKILL.md`
+Path: `.agents/skills/model-test-pipeline/SKILL.md`
 
 Use when:
 - You want a research-first, universal econometric testing workflow.
@@ -238,8 +238,8 @@ Expected output:
 | Old command habit | New skill | Suggested prompt |
 |---|---|---|
 | `/prime` | `repo-primer` | `Prime this repo and summarize architecture and conventions.` |
-| `/plan-feature` | `feature-planner` | `Plan feature X and save under .agent/plans/...` |
-| `/execute` | `plan-executor` | `Execute .agent/plans/<file>.md completely.` |
+| `/plan-feature` | `feature-planner` | `Plan feature X and save under .agents/plans/...` |
+| `/execute` | `plan-executor` | `Execute .agents/plans/<file>.md completely.` |
 | `/create-prd` | `prd-writer` | `Create/update PRD for X at <path>.` |
 | `/create-rules` | `rules-template-author` | `Update AGENTS template from current repo patterns.` |
 | `/init-project` | `project-bootstrap` | `Bootstrap local environment and run health checks.` |
@@ -271,13 +271,13 @@ Expected output:
 - Fix: First request `feature-planner`, then request `plan-executor`.
 
 4. Using legacy folder as active source.
-- Fix: Treat `.agent/legacy/claude-commands/` as archive only.
+- Fix: Treat `.agents/legacy/claude-commands/` as archive only.
 
 5. Treating archived plans as active planning context during priming.
-- Fix: Exclude `.agent/plans/archive/` from default priming scope; include it only when explicitly requested.
+- Fix: Exclude `.agents/plans/archive/` from default priming scope; include it only when explicitly requested.
 
 ## H+1) `docx`
-Path: `.agent/skills/docx/SKILL.md`
+Path: `.agents/skills/docx/SKILL.md`
 
 Use when:
 - You need to create, read, edit, or manipulate Word documents (.docx files).
@@ -286,7 +286,7 @@ Typical prompt:
 - `Create a Word report for X at output/report.docx.`
 
 ## H+2) `pptx`
-Path: `.agent/skills/pptx/SKILL.md`
+Path: `.agents/skills/pptx/SKILL.md`
 
 Use when:
 - Any .pptx file is involved — creating, editing, reading, or extracting content from presentations.
@@ -305,7 +305,7 @@ Dependencies (install before first use):
 - Poppler (`pdftoppm`) — PDF to images
 
 ## H+3) `statquest-ultimate`
-Path: `.agent/skills/statquest-ultimate/SKILL.md`
+Path: `.agents/skills/statquest-ultimate/SKILL.md`
 
 Use when:
 - You want a technical concept explained with a high-energy, intuition-first, example-before-formula teaching rhythm.
@@ -328,4 +328,4 @@ You currently have these active skills:
 - `pptx`
 - `statquest-ultimate`
 
-The file `.agent/skills/e2e-test/SKILL.md` is not present in the current repository state. Use `model-test-pipeline` for econometric-model validation workflows.
+The file `.agents/skills/e2e-test/SKILL.md` is not present in the current repository state. Use `model-test-pipeline` for econometric-model validation workflows.

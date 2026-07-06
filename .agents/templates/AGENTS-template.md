@@ -41,18 +41,18 @@ This template defines project guidance for Codex agents working in this reposito
 
 ## Local Skills
 
-Skills are stored in `.agent/skills/<skill-name>/SKILL.md`. Apply a skill when user intent matches its description.
+Skills are stored in `.agents/skills/<skill-name>/SKILL.md`. Apply a skill when user intent matches its description.
 
 | Skill | Use When | Path |
 |------|---------|------|
-| `atomic-commit` | User asks to create a commit from current changes | `.agent/skills/atomic-commit/SKILL.md` |
-| `feature-planner` | User asks to plan a feature before coding | `.agent/skills/feature-planner/SKILL.md` |
-| `model-test-pipeline` | User asks to research a repo/model first and then run universal econometric testing with generic checks plus auto profile checks | `.agent/skills/model-test-pipeline/SKILL.md` |
-| `plan-executor` | User asks to implement from an existing plan | `.agent/skills/plan-executor/SKILL.md` |
-| `prd-writer` | User asks for a PRD or requirements document | `.agent/skills/prd-writer/SKILL.md` |
-| `project-bootstrap` | User asks to initialize local dev environment | `.agent/skills/project-bootstrap/SKILL.md` |
-| `repo-primer` | User asks for repo priming/onboarding/architecture summary | `.agent/skills/repo-primer/SKILL.md` |
-| `rules-template-author` | User asks to create/refine `.agent/templates/AGENTS-template.md` | `.agent/skills/rules-template-author/SKILL.md` |
+| `atomic-commit` | User asks to create a commit from current changes | `.agents/skills/atomic-commit/SKILL.md` |
+| `feature-planner` | User asks to plan a feature before coding | `.agents/skills/feature-planner/SKILL.md` |
+| `model-test-pipeline` | User asks to research a repo/model first and then run universal econometric testing with generic checks plus auto profile checks | `.agents/skills/model-test-pipeline/SKILL.md` |
+| `plan-executor` | User asks to implement from an existing plan | `.agents/skills/plan-executor/SKILL.md` |
+| `prd-writer` | User asks for a PRD or requirements document | `.agents/skills/prd-writer/SKILL.md` |
+| `project-bootstrap` | User asks to initialize local dev environment | `.agents/skills/project-bootstrap/SKILL.md` |
+| `repo-primer` | User asks for repo priming/onboarding/architecture summary | `.agents/skills/repo-primer/SKILL.md` |
+| `rules-template-author` | User asks to create/refine `.agents/templates/AGENTS-template.md` | `.agents/skills/rules-template-author/SKILL.md` |
 
 ## Architecture Notes
 
@@ -122,12 +122,12 @@ Run before merge:
 
 ## Agent Output Conventions
 
-- Every reference to a local repository file in user-facing output must use a workspace-relative Markdown link (example: `[.agent/AGENTS.md](.agent/AGENTS.md)`).
+- Every reference to a local repository file in user-facing output must use a workspace-relative Markdown link (example: `[.agents/AGENTS.md](.agents/AGENTS.md)`).
 - This rule applies to plans, summaries, reviews, implementation notes, and any other response that references a repo file.
 - Do not use plain text paths, absolute filesystem links, or `file://` links for local repository file references.
-- When line precision is useful, add it after the path text in the sentence (example: `see [.agent/AGENTS.md](.agent/AGENTS.md):42`).
+- When line precision is useful, add it after the path text in the sentence (example: `see [.agents/AGENTS.md](.agents/AGENTS.md):42`).
 
 ## Repository Notes
 
 - {project-specific constraints}
-- All `.agent` Markdown files should be UTF-8 without BOM.
+- All `.agents` Markdown files should be UTF-8 without BOM.

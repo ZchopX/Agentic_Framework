@@ -1,6 +1,6 @@
 ---
 name: feature-planner
-description: Turn a feature request into a decision-complete implementation plan in `.agent/plans/{kebab-case-name}.md`. Use when the user asks to plan work before coding.
+description: Turn a feature request into a decision-complete implementation plan in `.agents/plans/{kebab-case-name}.md`. Use when the user asks to plan work before coding.
 ---
 
 # Feature Planner
@@ -13,7 +13,7 @@ Produce a plan another engineer or agent can execute without extra decisions.
 2. Analyze existing code paths, related modules, and testing patterns.
 3. Collect exact integration points and affected files.
 4. Resolve key tradeoffs before writing the plan.
-5. Write plan to `.agent/plans/<kebab-case-descriptive-name>.md`.
+5. Write plan to `.agents/plans/<kebab-case-descriptive-name>.md`.
 
 ## Plan Requirements
 - Feature description and user value
@@ -27,6 +27,6 @@ Produce a plan another engineer or agent can execute without extra decisions.
 - Risks, assumptions, and fallbacks
 
 ## Guardrails
-- Use `.agent/...` paths only.
+- Use `.agents/...` paths only.
 - Reference existing project patterns instead of inventing new ones.
 - Include executable validation steps for each phase.

@@ -98,7 +98,7 @@ More files will not fix the current weakness. Sharper style instructions will.
 This was a valid part of the earlier review.
 
 - [AGENTS.md](../../../../AGENTS.md) currently lists the skill too generically.
-- [.agent/skills/skills-usage-guide.md](../skills-usage-guide.md) also describes it too generically.
+- [.agents/skills/skills-usage-guide.md](../skills-usage-guide.md) also describes it too generically.
 
 If this skill is meant to be style-driven, those docs should say that it uses a specific high-energy, intuition-first, example-before-formula teaching rhythm.
 
