@@ -10,6 +10,7 @@ Replace the placeholders before starting the sub-agent review:
 Repository root: <absolute-or-workspace-relative-path>
 User request: <the user's requested outcome in 1-3 sentences>
 Plan path: <path to the plan file>
+Execution handoff: <path to .agents/reports/<plan-basename>-execution-handoff.md, or "none">
 Changed files: <newline-separated file paths, or explicit PR/diff source>
 Validation already run: <commands and pass/fail status, or "none">
 Artifacts to inspect: <paths, URLs, screenshots, logs, reports, generated files, or "none">
@@ -29,10 +30,27 @@ Do not modify files. Do not rewrite the implementation. Do not propose a differe
 
 If the changed-file list is incomplete, unavailable, or only a PR/diff source is provided, first identify the actual changed, deleted, renamed, generated, dependency, schema, migration, and configuration files from that source.
 
+## Handoff-First Review
+
+If `Execution handoff` is not `none`, read the handoff first. Treat it as an evidence index, not proof. Verify the mapped plan items, changed files, validation commands, artifacts, deviations, risk areas, and follow-up pointers against the plan and repository evidence.
+
+Expected handoff sections are `Plan`, `User request`, `Final outcome`, `Plan Item Evidence`, `Changed Files`, `Validation Run`, `Deviations`, `Risk Areas`, and `Follow-Up Pointers`.
+
+Use the handoff to limit repository discovery. Expand beyond the handoff only when at least one condition applies:
+
+- The handoff is missing or unreadable.
+- A required plan item has no evidence pointer.
+- An evidence pointer is stale, wrong, contradictory, or too vague to verify.
+- A changed file touches a shared interface, public command, schema, migration, persistence path, security boundary, generated artifact, or external integration not covered by the handoff.
+- Validation failed, was skipped, or does not cover a risk area named in the handoff.
+
+If none of those conditions apply, constrain review to the handoff, plan, changed files, direct call sites, validation outputs, and listed artifacts.
+
 ## Evidence Map
 
 Before writing findings, build a private evidence map:
 
+- If a handoff is present, start from each handoff row and verify the cited source, test, command, artifact, deviation, or risk pointer directly.
 - For each plan step, identify the changed file, test, artifact, command output, or reason it is unverifiable.
 - For each acceptance criterion, identify the evidence that satisfies it or the reason it is not satisfied.
 - For each changed file that does not map to the plan, decide whether it is needed for an implemented plan step, test, build/configuration update, generated artifact, dependency update, migration, or documentation update; otherwise treat it as a possible out-of-scope change.
@@ -82,6 +100,7 @@ Valid findings include:
 
 - A plan step or acceptance criterion not implemented or not verifiable.
 - A deviation from the plan that changes behavior without a plan note, source evidence, or repository constraint that explains the change.
+- A missing, stale, contradictory, or too-vague handoff pointer that blocks verification of a concrete plan item, changed file, validation claim, artifact, deviation, or risk area.
 - A bug or regression supported by source evidence.
 - A missing integration update required by the implementation.
 - A validation gap that could hide a regression in a changed file, direct integration path, or plan acceptance criterion.
@@ -94,6 +113,7 @@ Do not report:
 - Alternative implementations that still satisfy the plan and user request.
 - Missing exhaustive tests when focused validation already covers the implemented behavior.
 - Issues based only on the main agent's summary when source evidence is available.
+- Handoff omissions that do not prevent verification of a concrete plan item, changed behavior, validation claim, artifact, deviation, or risk area.
 - Generic "run all tests" recommendations unless the implementation changed shared behavior used by multiple modules, commands, pages, services, or public interfaces.
 
 ## Output Format

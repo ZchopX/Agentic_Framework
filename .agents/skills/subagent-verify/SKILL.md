@@ -15,6 +15,7 @@ Use a sub-agent as a fresh reviewer. The main agent remains responsible for judg
 
 1. Gather pointers, not full context:
    - Record the plan path if one was used.
+   - Record the execution handoff path when reviewing work produced by `plan-executor`; use `.agents/reports/<plan-basename>-execution-handoff.md` if no explicit path was provided.
    - Record changed file paths from `git status`, `git diff --name-only`, PR metadata, or the active task context.
    - Record validation commands already run and their pass/fail status.
    - Record artifact paths that need review, such as generated documents, reports, screenshots, logs, or build outputs.
@@ -22,17 +23,34 @@ Use a sub-agent as a fresh reviewer. The main agent remains responsible for judg
 
 2. Select the verification mode by the job just completed:
    - If the main agent just created a feature plan or implementation plan, read `references/plan-created-review.md`.
-   - If the main agent just implemented a written plan, read `references/plan-implementation-review.md`.
+   - If the main agent just implemented a written plan, read `references/plan-implementation-review.md`; when an execution handoff exists, make it the first evidence pointer for that review.
    - If the main agent made code changes without a written plan, read `references/code-change-review.md`.
    - If the main agent only produced or updated tests, CI, generated artifacts, reports, or validation outputs, read `references/validation-output-review.md`.
    - If the task does not fit one mode cleanly, choose the mode that matches the user's requested deliverable, then add only the extra pointers needed for the second concern.
 
 3. Build and start the sub-agent review when sub-agent tools are available:
    - Read the selected reference file as a prompt template.
-   - Fill the template with task-local pointers before sending it: repository root, plan path if any, changed file paths or PR/diff source, validation commands already run with pass/fail status, artifact paths that need inspection, and the user's requested outcome.
+   - Fill the template with task-local pointers before sending it: repository root, plan path if any, execution handoff path if any, changed file paths or PR/diff source, validation commands already run with pass/fail status, artifact paths that need inspection, and the user's requested outcome.
+   - When a handoff path is available, pass the path instead of pasting the full handoff. Ask the sub-agent to read it first and verify the referenced evidence directly.
    - Keep the filled prompt evidence-oriented: ask the sub-agent to inspect files, diffs, plans, tests, and artifacts directly.
    - Make the sub-agent role explicitly read-only. The sub-agent must not modify files, rewrite plans, update artifacts, run formatters that change files, or apply fixes. Only the main agent triages findings and applies valid corrections.
    - Do not include the main agent's intended fixes, suspected conclusions, or self-evaluation.
+
+## Execution Handoff Reviews
+
+For `plan-implementation-review` after `plan-executor`, the handoff is an index, not a source of truth. The verifier should use it to avoid cold repository rediscovery, then check the cited plan items, changed files, commands, artifacts, and direct integrations.
+
+Expected handoff sections are `Plan`, `User request`, `Final outcome`, `Plan Item Evidence`, `Changed Files`, `Validation Run`, `Deviations`, `Risk Areas`, and `Follow-Up Pointers`.
+
+Allow broader repository discovery only when at least one condition applies:
+
+- The handoff is missing or unreadable.
+- A required plan item has no evidence pointer.
+- An evidence pointer is stale, wrong, contradictory, or too vague to verify.
+- A changed file touches a shared interface, public command, schema, migration, persistence path, security boundary, generated artifact, or external integration not covered by the handoff.
+- Validation failed, was skipped, or does not cover a risk area named in the handoff.
+
+If none of those conditions apply, constrain the sub-agent review to the handoff, plan, changed files, direct call sites, validation outputs, and listed artifacts.
 
 4. Triage the sub-agent output:
    - Classify each finding as `valid-fix-now`, `valid-but-out-of-scope`, `needs-source-check`, or `reject`.
@@ -81,6 +99,7 @@ When building the sub-agent prompt, include:
 
 - Repository root.
 - Plan path, if any.
+- Execution handoff path, if any; use `none` when no handoff exists.
 - Changed file paths or PR/diff source.
 - Commands already run and their result, if known.
 - Artifact paths that need inspection, if any.
