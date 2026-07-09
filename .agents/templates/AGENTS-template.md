@@ -14,6 +14,8 @@ This template defines project guidance for Codex agents working in this reposito
 |------------|---------|
 | {tech} | {reason it is used} |
 
+Before proposing new frameworks, runtimes, databases, package managers, build systems, or major dependency-policy changes, check compatibility with this stack and the repository source-of-truth files. Prefer existing stack choices unless the current stack is insufficient and the tradeoff is recorded in an ADR.
+
 ## Standard Commands
 
 ```bash

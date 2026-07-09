@@ -93,6 +93,7 @@ Use when:
 
 What it does:
 - Scans structure, configs, key files, and current repo state.
+- Surfaces stack/tooling facts, source-of-truth configs, and unknowns for later planning.
 - Produces a concise implementation-oriented summary.
 
 Typical prompt:
@@ -118,13 +119,15 @@ Use when:
 
 What it does:
 - Analyzes current code patterns and integration points.
+- Checks stack and tooling compatibility before proposing new technology.
+- Reads durable docs first, then inspects only targeted source-of-truth config when needed.
 - Writes plan file under `.agents/plans/`.
 
 Typical prompt:
 - `Create a decision-complete plan for adding X. Save it as .agents/plans/add-x.md.`
 
 Expected output:
-- Plan with scope, tasks, tests, validations, risks, and acceptance criteria.
+- Plan with scope, tasks, tests, validations, risks, acceptance criteria, and stack compatibility notes when technology choices are involved.
 
 Claude-era equivalent:
 - roughly `/plan-feature`
@@ -197,6 +200,7 @@ Use when:
 What it does:
 - Classifies the repo and discovers existing docs.
 - Creates or updates the smallest useful documentation baseline.
+- Maintains compact stack/tooling constraints in `docs/development.md`, `docs/architecture.md`, and ADRs rather than creating `docs/stack.md` by default.
 - Preserves PRD-to-plan traceability and AI context handoff rules.
 
 Typical prompt:
@@ -301,6 +305,7 @@ Expected output:
    - `no DB schema change`
    - `backward compatible`
    - `no new dependencies`
+   - `ADR required for stack changes`
 4. Ask for a summary at the end:
    - `List files changed and validation results.`
 

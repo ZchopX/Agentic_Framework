@@ -13,6 +13,7 @@ Use docs as code: keep durable docs in the repo, in plain text, reviewed with co
 8. Prevent documentation rot with clear ownership signals where practical: status, last-reviewed date, source-of-truth, and update-when notes.
 9. Design for context compaction. Keep AI-facing guidance compact and link to durable docs instead of duplicating them.
 10. Define done as code plus docs plus verification, or explicitly record no docs impact.
+11. Keep stack and tooling constraints close to normal durable docs: use `docs/development.md` for local toolchain, commands, package managers, lockfiles, and dependency policy; use `docs/architecture.md` for architecture-level stack constraints; use ADRs for significant stack-changing decisions. Do not create `docs/stack.md` by default unless a large or polyglot repo needs a separate reference.
 
 ## Minimal Templates
 
@@ -39,6 +40,7 @@ Linked ADRs:
 PRD:
 Status:
 Scope:
+Stack compatibility:
 Implementation steps:
 Affected modules:
 Validation:
@@ -68,4 +70,3 @@ Links: PRD / plan / PR / issue
 - arc42: https://docs.arc42.org/home/
 - Diataxis: https://diataxis.fr/
 - Treude and Baltes, Context Rot: https://arxiv.org/abs/2606.09090
-
