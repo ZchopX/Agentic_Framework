@@ -41,6 +41,13 @@ Before proposing new frameworks, runtimes, databases, package managers, build sy
   {dir}/  # {description}
 ```
 
+## AI Code Discovery
+
+- Use cocoindex semantic search before broad file reads when looking for code by concept, behavior, or feature area.
+- Use `rg` for exact strings, filenames, config keys, and known symbols.
+- Do not commit `.cocoindex_code/` or `.serena/`.
+- Keep durable discoveries in docs or `.agents/reports/repo-primer.md`, not in chat history.
+
 ## Local Skills
 
 Skills are stored in `.agents/skills/<skill-name>/SKILL.md`. Apply a skill when user intent matches its description.
