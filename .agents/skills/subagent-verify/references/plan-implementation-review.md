@@ -34,7 +34,7 @@ If the changed-file list is incomplete, unavailable, or only a PR/diff source is
 
 If `Execution handoff` is not `none`, read the handoff first. Treat it as an evidence index, not proof. Verify the mapped plan items, changed files, validation commands, artifacts, deviations, risk areas, and follow-up pointers against the plan and repository evidence.
 
-Expected handoff sections are `Plan`, `User request`, `Final outcome`, `Plan Item Evidence`, `Changed Files`, `Validation Run`, `Deviations`, `Risk Areas`, and `Follow-Up Pointers`.
+Expected handoff sections are `Plan`, `User request`, `Final outcome`, `Plan Item Evidence`, `Changed Files`, `Validation Run`, `Deviations`, `Risk Areas`, `Compatibility And User-Facing Checks`, and `Follow-Up Pointers`.
 
 Use the handoff to limit repository discovery. Expand beyond the handoff only when at least one condition applies:
 
@@ -74,14 +74,15 @@ Use this map to avoid missed plan gaps and speculative findings. Do not include 
    - Whether tests, linters, builds, migrations, or artifact checks exercise the implemented plan behavior.
    - Whether test failures, skipped tests, warnings, stale snapshots, or generated artifacts were left unresolved or unexplained.
    - Whether missing validation could hide a regression in a changed file, direct integration path, or plan acceptance criterion.
-7. Check artifact correctness:
+7. If changed files affect UI, CLI prompts, reports, generated docs, notifications, or user workflows, apply `references/user-facing-review.md` to the changed surface and supplied artifacts.
+8. Check artifact correctness:
    - Compare the artifact state required by the plan or user request against the actual generated docs, reports, screenshots, migrations, logs, or build outputs when artifacts are supplied or changed.
    - Report stale, missing, inconsistent, or unexplained artifact changes only when they affect the plan, user request, validation, or runtime behavior.
-8. Check scope control:
+9. Check scope control:
    - Unrelated changes outside the written plan.
    - Files, docs, migrations, artifacts, or configuration changes missing when required by the plan, user request, or implemented code.
    - Generated files, dependency manifests, or lockfiles changed without plan evidence or implementation need.
-9. If required evidence is missing, report it only when the missing evidence prevents verification of a concrete plan step, acceptance criterion, or regression that could occur in a changed file or direct integration path.
+10. If required evidence is missing, report it only when the missing evidence prevents verification of a concrete plan step, acceptance criterion, or regression that could occur in a changed file or direct integration path.
 
 Limit review depth to the plan, changed behavior, and direct integrations that can affect the implemented plan. Do not expand into unrelated architecture review.
 
@@ -104,6 +105,7 @@ Valid findings include:
 - A bug or regression supported by source evidence.
 - A missing integration update required by the implementation.
 - A validation gap that could hide a regression in a changed file, direct integration path, or plan acceptance criterion.
+- A user-facing regression or missing user-facing validation covered by `references/user-facing-review.md`.
 - An out-of-scope change that can alter behavior, data, security, performance, artifacts, or user-visible output.
 
 Do not report:

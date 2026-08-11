@@ -38,7 +38,8 @@ This is a read-only review. Do not modify files, rewrite the plan, update artifa
 8. Check deferred discovery: repo-specific implementation details may be deferred only if the plan includes an explicit discovery step and a decision point before coding depends on that detail.
 9. Check acceptance criteria: success conditions should be observable from tests, commands, artifact inspection, or user-visible behavior.
 10. Check validation: planned checks should cover the requested behavior and any existing behavior that the planned files, interfaces, migrations, configuration, or generated artifacts could affect.
-11. Check dependencies, migrations, schemas, configuration, generated artifacts, docs, and rollout/backout concerns only when the requested work could affect them.
+11. If the plan affects UI, CLI prompts, reports, generated docs, notifications, or user workflows, apply `references/user-facing-review.md` and verify the plan includes the relevant user-facing impact notes and validation evidence.
+12. Check dependencies, migrations, schemas, configuration, generated artifacts, docs, and rollout/backout concerns only when the requested work could affect them.
 
 Limit review depth to whether the plan is ready to guide implementation. Do not expand into unrelated product strategy or architecture review.
 
@@ -59,6 +60,7 @@ Valid findings include:
 - A contradiction between plan sections.
 - An unstated assumption that could change implementation behavior, files touched, validation, or migration work.
 - Acceptance criteria or validation steps that do not name an observable behavior, command, test, artifact, or inspection target.
+- Missing user-facing impact notes or validation evidence for a plan that changes a user-facing surface.
 - Scope expansion that could lead implementation away from the user's request.
 
 Do not report:

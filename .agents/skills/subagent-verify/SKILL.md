@@ -27,6 +27,7 @@ Use a sub-agent as a fresh reviewer. The main agent remains responsible for judg
    - If the main agent made code changes without a written plan, read `references/code-change-review.md`.
    - If the main agent only produced or updated tests, CI, generated artifacts, reports, or validation outputs, read `references/validation-output-review.md`.
    - If the task does not fit one mode cleanly, choose the mode that matches the user's requested deliverable, then add only the extra pointers needed for the second concern.
+   - If the work affects UI, CLI prompts, reports, generated docs, notifications, or user workflows, also read `references/user-facing-review.md` and include it as a focused review lens. Otherwise note `No user-facing surface found`.
 
 3. Build and start the sub-agent review when sub-agent tools are available:
    - Read the selected reference file as a prompt template.
@@ -40,7 +41,7 @@ Use a sub-agent as a fresh reviewer. The main agent remains responsible for judg
 
 For `plan-implementation-review` after `plan-executor`, the handoff is an index, not a source of truth. The verifier should use it to avoid cold repository rediscovery, then check the cited plan items, changed files, commands, artifacts, and direct integrations.
 
-Expected handoff sections are `Plan`, `User request`, `Final outcome`, `Plan Item Evidence`, `Changed Files`, `Validation Run`, `Deviations`, `Risk Areas`, and `Follow-Up Pointers`.
+Expected handoff sections are `Plan`, `User request`, `Final outcome`, `Plan Item Evidence`, `Changed Files`, `Validation Run`, `Deviations`, `Risk Areas`, `Compatibility And User-Facing Checks`, and `Follow-Up Pointers`.
 
 Allow broader repository discovery only when at least one condition applies:
 

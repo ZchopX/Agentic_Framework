@@ -38,9 +38,10 @@ If the changed-file list is incomplete, unavailable, or only a PR/diff source is
 6. Check deleted files, renamed files, generated files, lockfiles, dependency manifests, migrations, schemas, and configuration changes when present.
 7. Check error handling and failure modes.
 8. Check security, privacy, data loss, and reliability only when the changed code handles external input, authentication, authorization, secrets, persistence, file operations, network calls, money, personal data, concurrency, or destructive actions.
-9. Check whether tests or validation exercise the changed behavior or whether the absence of validation could hide a likely regression.
-10. If validation logs, screenshots, reports, or artifacts are supplied, inspect them directly and report mismatches between claimed and actual results.
-11. If required evidence is missing, report it only when the missing evidence prevents verification of a plausible bug or regression.
+9. If changed files affect UI, CLI prompts, reports, generated docs, notifications, or user workflows, apply `references/user-facing-review.md` to the changed surface and supplied artifacts.
+10. Check whether tests or validation exercise the changed behavior or whether the absence of validation could hide a likely regression.
+11. If validation logs, screenshots, reports, or artifacts are supplied, inspect them directly and report mismatches between claimed and actual results.
+12. If required evidence is missing, report it only when the missing evidence prevents verification of a plausible bug or regression.
 
 Limit review depth to files and integrations that can affect the changed behavior. Do not expand into unrelated architecture review.
 
@@ -61,6 +62,7 @@ Valid findings include:
 - A mismatch with the user request.
 - A missing integration update required by the change.
 - A validation gap that could hide a likely regression.
+- A user-facing regression or missing user-facing validation covered by `references/user-facing-review.md`.
 - An out-of-scope change that can alter behavior, data, security, performance, or user-visible output.
 
 Do not report:

@@ -22,7 +22,9 @@ Before changing files:
 
 - Check current git status and identify unrelated dirty or untracked files.
 - Verify the plan's cited docs, configs, source files, tests, commands, and artifacts still exist.
-- Re-read the minimum relevant docs/config/source evidence when the plan depends on stack, tooling, architecture, public APIs, schemas, migrations, persistence, generated artifacts, or external integrations.
+- Re-read the minimum relevant docs/config/source evidence when the plan depends on stack, tooling, architecture, public APIs, UI/user workflows, schemas, migrations, persistence, security, deployment, generated artifacts, or external integrations.
+- Confirm the plan still has a compatibility outcome: `Compatibility notes` or `No compatibility impact identified`. If missing, perform the same targeted check before editing and record the outcome.
+- If the plan or changed files affect UI, CLI prompts, reports, generated docs, notifications, or user workflows, identify the user-facing checks to run or the reason they cannot be run.
 - Inspect direct call sites before editing shared functions, commands, public interfaces, schemas, or reusable helpers.
 - If the plan is stale, contradicts repo reality, or omits a required integration path, stop and report the conflict unless the correction is obvious, narrow, and still inside the user's requested scope.
 - Record any safe deviation and its reason in the execution handoff.
@@ -63,6 +65,10 @@ Final outcome: <1-3 sentences>
 
 ## Risk Areas
 - <shared integration, missing validation, fragile assumption, or "None">
+
+## Compatibility And User-Facing Checks
+- Compatibility: <sources checked and fit outcome, or "No compatibility impact identified">
+- User-facing: <journey/state/accessibility/responsive/artifact checks run, or "No user-facing surface changed">
 
 ## Follow-Up Pointers
 - <files, docs, artifacts, logs, screenshots, or "None">

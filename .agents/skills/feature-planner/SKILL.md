@@ -20,8 +20,12 @@ Produce an evidence-backed plan another engineer or agent can execute without ex
    - State whether the user's initial approach fits repo reality, needs adjustment, or should be rejected.
    - Prefer existing runtimes, package managers, frameworks, databases, build systems, test tools, dependency patterns, and in-repo features.
    - When proposing a new technology, dependency category, runtime feature, package manager, database, build system, or framework, explain why the current stack is insufficient.
-5. Resolve key decisions and tradeoffs. Ask the user only when the answer materially changes implementation; otherwise choose a default and record it as an assumption.
-6. Write plan to `.agents/plans/<kebab-case-descriptive-name>.md`.
+5. Run the compatibility gate for every plan:
+   - Include `Compatibility notes` with checked docs/configs/patterns and fit decision.
+   - Use `No compatibility impact identified` only for docs-only, comments-only, formatting-only, or otherwise behavior-neutral work.
+6. Run the user-facing impact gate when the change affects UI, CLI prompts, reports, generated docs, notifications, or user workflows.
+7. Resolve key decisions and tradeoffs. Ask the user only when the answer materially changes implementation; otherwise choose a default and record it as an assumption.
+8. Write plan to `.agents/plans/<kebab-case-descriptive-name>.md`.
 
 ## Plan Requirements
 - Feature description and user value
@@ -38,14 +42,21 @@ Produce an evidence-backed plan another engineer or agent can execute without ex
 - Validation commands
 - Acceptance criteria checklist
 - Risks, assumptions, and fallbacks
-- Stack compatibility notes when the request proposes, changes, or depends on technology choices:
+- Compatibility notes for every plan:
   - sources checked
   - compatibility with current stack
   - existing stack alternatives considered
   - `ADR required: yes/no` for new framework, runtime, database, package-manager, build-system, deployment, architecture, or major dependency-policy decisions
   - assumptions and verification steps when compatibility cannot be confirmed locally
 
-For behavior-only plans with no stack or tooling impact, either omit the stack section or add one concise note: `No stack/tooling impact identified`.
+For behavior-neutral plans, add one concise note: `No compatibility impact identified`.
+
+- User-facing impact notes when the change affects UI, CLI prompts, reports, generated docs, notifications, or user workflows:
+  - primary user journey
+  - existing UX/UI/copy patterns to reuse
+  - loading, empty, error, success, disabled, and partial-data states that matter for the change
+  - accessibility and responsive checks
+  - validation evidence to collect, such as screenshot, manual flow note, UI test, or artifact inspection
 
 ## Guardrails
 - Write planning artifacts under `.agents/...`; read repository docs and source-of-truth config as needed for compatibility checks.
