@@ -118,7 +118,8 @@ Use when:
 - You want a decision-complete implementation plan before coding.
 
 What it does:
-- Analyzes current code patterns and integration points.
+- Researches durable docs, current code paths, existing similar features, integration points, and tests before writing the plan.
+- Assesses whether the requested approach fits the repo or should be adjusted.
 - Checks stack and tooling compatibility before proposing new technology.
 - Reads durable docs first, then inspects only targeted source-of-truth config when needed.
 - Writes plan file under `.agents/plans/`.
@@ -127,7 +128,7 @@ Typical prompt:
 - `Create a decision-complete plan for adding X. Save it as .agents/plans/add-x.md.`
 
 Expected output:
-- Plan with scope, tasks, tests, validations, risks, acceptance criteria, and stack compatibility notes when technology choices are involved.
+- Evidence-backed plan with discovery notes, system fit, reuse opportunities, decisions/tradeoffs, tasks, tests, validations, risks, acceptance criteria, and stack compatibility notes when technology choices are involved.
 
 Claude-era equivalent:
 - roughly `/plan-feature`
@@ -139,6 +140,7 @@ Use when:
 - You already have a plan file and want implementation.
 
 What it does:
+- Verifies the plan against current repo files before editing.
 - Executes ordered tasks from the plan.
 - Reports completed work, validations, and deviations.
 

@@ -10,11 +10,22 @@ Implement a plan faithfully and surface any required deviations.
 
 ## Workflow
 1. Read the full plan document and extract ordered tasks.
-2. Execute tasks in dependency order.
-3. Keep changes consistent with project conventions and architecture.
-4. Implement or update tests defined by the plan.
-5. Run validation commands from the plan and report results.
-6. When meaningful implementation work completed, write an execution handoff for `subagent-verify`.
+2. Run the Plan Reality Check before editing.
+3. Execute tasks in dependency order.
+4. Keep changes consistent with project conventions and architecture.
+5. Implement or update tests defined by the plan.
+6. Run validation commands from the plan and report results.
+7. When meaningful implementation work completed, write an execution handoff for `subagent-verify`.
+
+## Plan Reality Check
+Before changing files:
+
+- Check current git status and identify unrelated dirty or untracked files.
+- Verify the plan's cited docs, configs, source files, tests, commands, and artifacts still exist.
+- Re-read the minimum relevant docs/config/source evidence when the plan depends on stack, tooling, architecture, public APIs, schemas, migrations, persistence, generated artifacts, or external integrations.
+- Inspect direct call sites before editing shared functions, commands, public interfaces, schemas, or reusable helpers.
+- If the plan is stale, contradicts repo reality, or omits a required integration path, stop and report the conflict unless the correction is obvious, narrow, and still inside the user's requested scope.
+- Record any safe deviation and its reason in the execution handoff.
 
 ## Execution Handoff
 After implementing a written plan, create:
@@ -75,4 +86,5 @@ Provide:
 ## Guardrails
 - Do not skip failed validations; fix and rerun where possible.
 - If plan instructions conflict with repository reality, document the conflict and apply the safest compatible change.
+- Do not blindly execute stale plans. Verify the plan against current files before edits.
 
