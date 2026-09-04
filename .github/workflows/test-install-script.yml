@@ -1,0 +1,25 @@
+name: Test install-agentic-framework.ps1
+
+on:
+  push:
+    paths:
+      - '.agents/scripts/install-agentic-framework.ps1'
+      - '.agents/scripts/tests/**'
+  pull_request:
+    paths:
+      - '.agents/scripts/install-agentic-framework.ps1'
+      - '.agents/scripts/tests/**'
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install OpenSpec CLI (widens OpenSpec-dependent E2E coverage)
+        run: npm install -g @fission-ai/openspec
+        continue-on-error: true
+
+      - name: Run Pester suite (Unit + E2E)
+        shell: pwsh
+        run: pwsh -File .agents/scripts/tests/Invoke-Tests.ps1

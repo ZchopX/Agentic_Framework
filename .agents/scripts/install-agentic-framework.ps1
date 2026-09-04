@@ -136,6 +136,36 @@ function Copy-DirectoryIfChanged {
     return $(if ($state -eq "missing") { "installed" } else { "updated" })
 }
 
+function Get-NormalizedRepoUrl {
+    param([string]$Url)
+    ($Url.TrimEnd('/') -replace '\.git$', '').ToLowerInvariant()
+}
+
+function Test-SymlinkTarget {
+    # Returns $true only if $Item is a symlink whose resolved target matches
+    # $ExpectedPath. Used to distinguish a valid existing symlink from a
+    # stale one (pointing at a moved/renamed source) that must be recreated.
+    param($Item, [string]$ExpectedPath)
+    if (-not $Item -or $Item.LinkType -ne "SymbolicLink") {
+        return $false
+    }
+    $target = $Item.Target | Select-Object -First 1
+    if (-not $target) {
+        return $false
+    }
+    $resolvedTarget = (Resolve-Path -LiteralPath $target -ErrorAction SilentlyContinue).Path
+    if (-not $resolvedTarget) {
+        return $false
+    }
+    # No -ErrorAction here: matches the original inline code's behavior of
+    # letting a missing $ExpectedPath throw (it always exists by this point
+    # in real invocations - only unreachable under -WhatIf).
+    $resolvedExpected = (Resolve-Path -LiteralPath $ExpectedPath).Path
+    return ($resolvedTarget -eq $resolvedExpected)
+}
+
+if ($MyInvocation.InvocationName -eq '.') { return }
+
 $report = New-Object System.Collections.Generic.List[string]
 
 # --- 2. Safety guards ---------------------------------------------------
@@ -148,8 +178,7 @@ if (-not (Test-Path (Join-Path $cwd ".git"))) {
 
 $originUrl = (& git remote get-url origin 2>$null)
 if ($LASTEXITCODE -eq 0 -and $originUrl) {
-    $normalize = { param($u) ($u.TrimEnd('/') -replace '\.git$', '').ToLowerInvariant() }
-    if ((& $normalize $originUrl) -eq (& $normalize $SourceUrl)) {
+    if ((Get-NormalizedRepoUrl $originUrl) -eq (Get-NormalizedRepoUrl $SourceUrl)) {
         Write-Error "This script installs Agentic_Framework *into* other repos - it looks like you're running it from inside Agentic_Framework itself."
         exit 1
     }
@@ -332,19 +361,13 @@ try {
         $linkStatus = "unchanged"
         $existingItem = Get-Item -LiteralPath $claudeDst -ErrorAction SilentlyContinue
 
-        $isCorrectSymlink = $false
-        if ($existingItem -and $existingItem.LinkType -eq "SymbolicLink") {
-            $existingTarget = $existingItem.Target | Select-Object -First 1
-            $resolvedTarget = if ($existingTarget) { (Resolve-Path -LiteralPath $existingTarget -ErrorAction SilentlyContinue).Path } else { $null }
-            $resolvedAgentsDst = (Resolve-Path -LiteralPath $agentsDst).Path
-            $isCorrectSymlink = ($resolvedTarget -eq $resolvedAgentsDst)
-            if (-not $isCorrectSymlink) {
-                # Stale symlink pointing at the wrong target - remove and recreate below.
-                if ($PSCmdlet.ShouldProcess($claudeDst, "Recreate stale symlink")) {
-                    Remove-Item -LiteralPath $claudeDst -Force
-                }
-                $existingItem = $null
+        $isCorrectSymlink = Test-SymlinkTarget -Item $existingItem -ExpectedPath $agentsDst
+        if ($existingItem -and $existingItem.LinkType -eq "SymbolicLink" -and -not $isCorrectSymlink) {
+            # Stale symlink pointing at the wrong target - remove and recreate below.
+            if ($PSCmdlet.ShouldProcess($claudeDst, "Recreate stale symlink")) {
+                Remove-Item -LiteralPath $claudeDst -Force
             }
+            $existingItem = $null
         }
 
         if ($isCorrectSymlink) {
