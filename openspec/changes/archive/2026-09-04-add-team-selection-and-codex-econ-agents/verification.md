@@ -1,0 +1,21 @@
+## Verification
+
+**Result:** pass with notes
+
+### Findings Fixed
+- **[High] Econometric locked-file install could delete pre-existing unrelated files in a target repo's `.claude/agents/` and `.agents/agents/`.** The original implementation copied the seven `econ-*.md` files via `Copy-DirectoryIfChanged`, which runs `robocopy /MIR` (mirror) on the whole directory - deleting any file present in the destination but not in the source. `.claude/agents/` and `.agents/agents/` are general-purpose directories a target repo may already populate with its own, unrelated agent definitions; a `-Team Econometric` run would have silently wiped them. Fixed by adding `Copy-MatchingFilesIfChanged` (a non-mirroring, pattern-scoped `robocopy` without `/MIR`) and routing both econ-agent copies through it instead. Added a regression test ("leaves a pre-existing unrelated `.claude/agents` and `.agents/agents` file untouched") that pre-seeds an unrelated file in both directories and confirms it survives a `-Team Econometric -Yes` run.
+- **Codex-facing `econ-ceo.md` listed the Claude-only `Agent` tool in its `tools:` frontmatter**, contradicting its own body text ("Codex has no native subagent-dispatch tool equivalent to Claude Code's `Agent` tool") and design.md's rule to keep `tools:` only where names are generic enough for either CLI. Removed `Agent` from `.agents/agents/econ-ceo.md`'s `tools:` line; `.claude/agents/econ-ceo.md` (Claude's own copy) is unaffected.
+
+### Findings Rejected / Out of Scope
+- Task 4.2's checkbox text says Pester cases were added/updated in both `Unit.Tests.ps1` and `E2E.Tests.ps1`, but only `E2E.Tests.ps1` changed. Accepted as-is: no unit-testable function was introduced by the team-selection or locked-file logic (it lives inline in the script body past the dot-source guard, same as the pre-existing skill-picker prompt, which likewise has no unit tests) - there was nothing correct to add to `Unit.Tests.ps1`.
+- No automated test for "manual pick of `model-test-pipeline` in the skill picker still works under `-Team Programming`" (task 2.4's parenthetical). Out of scope: that code path (the skill picker's numeric selection) is untouched by this change and already covered by the pre-existing "interactive re-prompt" E2E case's picker mechanics.
+
+### Checks Run
+- `pwsh -File .agents/scripts/tests/Invoke-Tests.ps1` (full Pester suite, Unit + E2E, both `pwsh` and `powershell.exe` engines) — 38/38 passed, 0 failed, after the fixes above (was 36/38 relevant scenarios before the new regression test existed).
+- Manual end-to-end runs of the installer against scratch target repos for both `-Team Econometric -Yes` and `-Team Programming -Yes` (via a locally committed snapshot of the working tree as `-SourceUrl`, since this change is not yet committed to the real remote), confirming: 14 agent files + `model-test-pipeline` skill + `openspec/schemas/econometric-verified/` present for Econometric and absent for Programming; `openspec/config.yaml`'s `schema:` line set to `econometric-verified` / `spec-driven-verified` respectively.
+- `[System.Management.Automation.Language.Parser]::ParseFile(...)` syntax check on both the modified installer script and the modified E2E test file after every edit.
+- Independent sub-agent implementation review (plan-fidelity + user-facing prompt-flow lens) against `proposal.md`, both delta specs, `design.md`, and `tasks.md` — findings triaged above.
+
+### Residual Risk
+- The destructive-mirror fix is scoped to the two econ-agent directories; `openspec/schemas/econometric-verified/` is still synced via the original whole-directory `Copy-DirectoryIfChanged`/`robocopy /MIR`. This is judged safe because that path is a uniquely-named schema directory this installer exclusively owns (same pattern already used for `spec-driven-verified`'s global sync), not a general-purpose directory a target repo would independently populate - but it was not re-verified with a pre-seeded-file test the way the agent directories were.
+- This change (script, tests, canonical Codex agent files, `AGENTS.md` update) is not yet committed to the repository; verification's E2E runs used a locally committed snapshot of the working tree as the clone source rather than the real GitHub remote. Once committed, a final real-remote-clone smoke run is recommended before relying on this in another repo.

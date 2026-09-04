@@ -1,0 +1,304 @@
+name: econometric-verified
+version: 1
+description: Econometric analysis workflow with identification-first gating -
+  proposal → identification → package-selection → specs → tasks → implementation-notes → verification → report
+artifacts:
+  - id: proposal
+    generates: proposal.md
+    description: Initial proposal document outlining the change
+    template: proposal.md
+    instruction: |
+      Create the proposal document that establishes WHY this change is needed.
+
+      Sections:
+      - **Why**: 1-2 sentences on the problem or opportunity. What problem does this solve? Why now?
+      - **What Changes**: Bullet list of changes. Be specific about new capabilities, modifications, or removals. Mark breaking changes with **BREAKING**.
+      - **Capabilities**: Identify which specs will be created or modified:
+        - **New Capabilities**: List capabilities being introduced. Each becomes a new `specs/<capability-path>/spec.md`. Use kebab-case for path segments you introduce (e.g., `user-auth` or `identity/user-auth`) and follow the project's existing spec organization.
+        - **Modified Capabilities**: List existing capabilities whose REQUIREMENTS are changing. Only include if spec-level behavior changes (not just implementation details). Each needs a delta spec file. Use the exact existing path under `openspec/specs/`. Leave empty if no requirement changes.
+      - **Impact**: Affected code, APIs, dependencies, or systems.
+
+      IMPORTANT: The Capabilities section is critical. It creates the contract between
+      proposal and specs phases. Research existing specs before filling this in.
+      Each capability listed here will need a corresponding spec file.
+
+      Every change must either declare at least one capability (new or
+      modified) or explicitly opt out of specs: `openspec validate` rejects a
+      change with zero deltas unless the change's `.openspec.yaml` sets
+      `skip_specs: true`. Use `skip_specs: true` only when no spec-level
+      behavior changes (pure refactor, tooling, docs) - specs describe
+      behavior, so if behavior does not change, no spec should change either.
+      Do not invent a requirement just to satisfy validation.
+
+      Keep it concise (1-2 pages). Focus on the "why" not the "how" -
+      implementation details belong in identification.md.
+
+      This is the foundation - identification, package-selection, specs, and
+      tasks all build on this.
+    requires: []
+
+  - id: specs
+    generates: "specs/**/*.md"
+    description: Detailed specifications for the change
+    template: spec.md
+    instruction: |
+      Create specification files that define WHAT the system should do.
+
+      A spec is a behavior contract, not an implementation plan.
+
+      Good spec content:
+      - Observable behavior users or downstream systems rely on
+      - Inputs, outputs, and error conditions
+      - External constraints (security, privacy, reliability, compatibility)
+      - Scenarios that can be tested or explicitly validated
+
+      Avoid in specs:
+      - Internal class/function names
+      - Library or framework choices
+      - Step-by-step implementation details
+      - Detailed execution plans (those belong in design.md or tasks.md)
+
+      Quick test: if the implementation can change without changing externally
+      visible behavior, it likely does not belong in the spec.
+
+      Create one spec file per capability listed in the proposal's Capabilities section.
+      `<capability-path>` is the spec directory relative to `specs/` (for example,
+      `user-auth` or `identity/user-auth`). Preserve the full path:
+      - New capabilities: use the exact path from the proposal at `specs/<capability-path>/spec.md`. Any path segment newly introduced in the proposal must be kebab-case. Follow the project's existing organization; do not add a new domain level when the project uses a flat layout.
+      - Modified capabilities: use the exact existing path from `openspec/specs/<capability-path>/` when creating the delta at `specs/<capability-path>/spec.md`. Do not move or rename the capability.
+
+      There must be at least one spec file unless the change's `.openspec.yaml`
+      sets `skip_specs: true` (no spec-level behavior change) - `openspec validate`
+      rejects a zero-delta change without that marker. If the proposal lists no
+      capabilities and `skip_specs` is not set, revisit the proposal first.
+
+      Delta operations (use ## headers):
+      - **ADDED Requirements**: New capabilities
+      - **MODIFIED Requirements**: Changed behavior - MUST include full updated content
+      - **REMOVED Requirements**: Deprecated features - MUST include **Reason** and **Migration**
+      - **RENAMED Requirements**: Name changes only - use FROM:/TO: format
+
+      Format requirements:
+      - Each requirement: `### Requirement: <name>` followed by description
+      - Use SHALL/MUST for normative requirements (avoid should/may)
+      - Each scenario: `#### Scenario: <name>` with WHEN/THEN format
+      - **CRITICAL**: Scenarios MUST use exactly 4 hashtags (`####`). Using 3 hashtags or bullets will fail silently.
+      - Every requirement MUST have at least one scenario.
+
+      New capabilities only: start the delta spec with a `## Purpose` section -
+      one or two sentences (50+ characters, or `openspec validate --strict`
+      reports it as too brief) describing what the capability is for. Archive
+      copies it into the main spec it creates; without it the new main spec is
+      left with a `TBD ... Update Purpose after archive` placeholder to fill in
+      by hand. Do NOT add `## Purpose` to a delta for an existing capability -
+      that spec already has one and the delta's is ignored. To change an
+      existing capability's Purpose - including a leftover `TBD` placeholder -
+      edit `<planningHome.root>/openspec/specs/<capability-path>/spec.md`
+      directly. `planningHome.root` comes from the `openspec instructions ...
+      --json` response. Always use it rather than a repo-relative path: it
+      resolves to the store whenever the change lives in one - whether that
+      came from `--store`, a project `store:` pointer, or a global default
+      store - and to the current repository otherwise. Do not try to work out
+      which case applies; the field already has.
+
+      MODIFIED requirements workflow:
+      1. Locate the existing requirement in `<planningHome.root>/openspec/specs/<capability-path>/spec.md` (the same store-aware root as above)
+      2. Copy the ENTIRE requirement block (from `### Requirement:` through all scenarios)
+      3. Paste under `## MODIFIED Requirements` and edit to reflect new behavior
+      4. Ensure header text matches exactly (whitespace-insensitive)
+
+      Common pitfall: Using MODIFIED with partial content loses detail at archive time.
+      If adding new concerns without changing existing behavior, use ADDED instead.
+
+      Example (a new capability, so it opens with `## Purpose`):
+      ```
+      ## Purpose
+
+      Lets users take their data out of the product in a portable format.
+
+      ## ADDED Requirements
+
+      ### Requirement: User can export data
+      The system SHALL allow users to export their data in CSV format.
+
+      #### Scenario: Successful export
+      - **WHEN** user clicks "Export" button
+      - **THEN** system downloads a CSV file with all user data
+
+      ## REMOVED Requirements
+
+      ### Requirement: Legacy export
+      **Reason**: Replaced by new export system
+      **Migration**: Use new export endpoint at /api/v2/export
+      ```
+
+      Specs should be testable - each scenario is a potential test case.
+    requires:
+      - package-selection
+
+  - id: identification
+    generates: identification.md
+    description: Econometric identification strategy - the research-design gate before any modeling starts
+    template: identification.md
+    instruction: |
+      Create the identification document that establishes HOW this research
+      question will be answered before any code is written. This is a hard
+      gate: package-selection, tasks, and implementation-notes are all
+      blocked until this artifact exists.
+
+      Sections:
+      - **Research Question**: What is being estimated or tested, precisely.
+      - **Identification Strategy**: The econometric approach (e.g., fixed-effects
+        panel, VAR/VECM, difference specification) and why it identifies the
+        effect of interest given the data.
+      - **Assumptions**: What must hold for the strategy to be valid (exogeneity,
+        stationarity, cross-sectional independence, etc.) - state them explicitly,
+        do not leave them implicit.
+      - **Threats to Validity**: Known risks (omitted variables, serial
+        correlation, heteroskedasticity, unit roots, structural breaks) and
+        which of them the strategy does or does not address.
+      - **Required Diagnostics**: The specific tests that must pass before a
+        result from this strategy is trustworthy (e.g., Hausman test,
+        Breusch-Pagan, unit-root tests, serial-correlation tests). This list is
+        what `test-writer` implements against.
+      - **Expected Error Structure**: What kind of standard errors the data
+        structure requires (robust, clustered, HAC, panel-corrected) and why.
+
+      This is the foundation for package-selection and implementation-notes.
+      A downstream failure traced back to a gap here reopens this artifact.
+    requires:
+      - proposal
+
+  - id: package-selection
+    generates: package-selection.md
+    description: Python vs R package comparison for the chosen identification strategy
+    template: package-selection.md
+    instruction: |
+      Create the package-selection document comparing candidate Python and R
+      implementations for the identification strategy in identification.md.
+
+      Sections:
+      - **Candidates**: List relevant Python packages (e.g., statsmodels,
+        linearmodels, arch, pmdarima) and R packages (e.g., plm, fixest, vars,
+        urca) capable of implementing the chosen strategy.
+      - **Comparison**: For each viable candidate, note what it supports
+        relevant to the Required Diagnostics and Expected Error Structure from
+        identification.md (e.g., does it natively support the required
+        standard-error type?).
+      - **Decision**: The chosen package + language, with rationale tied
+        directly to identification.md's requirements - not general popularity.
+
+      Do not implement anything here - this is a decision document, not code.
+    requires:
+      - identification
+
+  - id: tasks
+    generates: tasks.md
+    description: Implementation checklist with trackable tasks
+    template: tasks.md
+    instruction: |
+      Create the task list that breaks down the implementation work.
+
+      Before writing tasks, check identification.md's Required Diagnostics and
+      package-selection.md's Decision. If either would change what gets built,
+      resolve it with the user first - do not bake an unstated assumption into
+      the task list.
+
+      **IMPORTANT: Follow the template below exactly.** The apply phase parses
+      checkbox format to track progress. Tasks not using `- [ ]` won't be tracked.
+
+      Guidelines:
+      - Group related tasks under ## numbered headings
+      - Each task MUST be a checkbox: `- [ ] X.Y Task description`
+      - Tasks should be small enough to complete in one session
+      - Order tasks by dependency (what must be done first?)
+      - Each task MUST state how to verify completion (a test, command,
+        observable behavior, or delivered artifact). Put the verification in
+        that task's checkbox description. Use a separate verification task only
+        when it checks broader integration or system behavior that spans
+        multiple implementation tasks.
+
+      Example:
+      ```
+      ## 1. Setup
+
+      - [ ] 1.1 Create new module structure and verify expected files are present
+      - [ ] 1.2 Add dependencies to package.json and verify package installation succeeds
+
+      ## 2. Core Implementation
+
+      - [ ] 2.1 Implement data export function and verify the export test passes
+      - [ ] 2.2 Add CSV formatting utilities and verify unit tests cover quoting and delimiters
+      ```
+
+      Reference specs for what needs to be built, identification.md for the
+      required diagnostics and error structure, package-selection.md for the
+      chosen implementation.
+    requires:
+      - specs
+
+  - id: implementation-notes
+    generates: implementation-notes.md
+    description: Estimation's mapping from implemented code to the identification spec, read by triage on any test failure
+    template: implementation-notes.md
+    instruction: |
+      Create the implementation-notes document that maps the implemented code
+      to identification.md's requirements. This is what a triage step reads
+      alongside failing test output to tell a code bug (implementation doesn't
+      match this document) apart from a spec gap (implementation matches this
+      document, but a required technical element is missing from
+      identification.md itself) or a design flaw (the identification strategy
+      is inadequate).
+
+      Sections:
+      - **Code Location**: Where the implementation lives (file paths).
+      - **Requirement Mapping**: For each item in identification.md's Required
+        Diagnostics and Expected Error Structure, the specific code that
+        implements it (e.g., "Expected Error Structure: cluster-robust SEs ->
+        implemented via `cov_type='cluster'` in `estimate.py:42`").
+      - **Deviations**: Anything identification.md calls for that is not yet
+        implemented, and why.
+
+      This is a factual mapping, not a design rationale document - keep it
+      short and specific to what the code actually does.
+    requires:
+      - package-selection
+      - tasks
+
+  - id: verification
+    generates: verification.md
+    description: Independent review of the implemented tasks before archiving
+    template: verification.md
+    instruction: |
+      Invoke the `openspec-verify` skill/command to independently review the
+      implementation against this change's proposal, specs, identification,
+      package-selection, implementation-notes, and tasks before it is
+      archived. For this schema, verification also confirms every item in
+      identification.md's Required Diagnostics has a passing test and that
+      implementation-notes.md's Requirement Mapping is accurate.
+
+      Do not write this file by hand - the openspec-verify skill produces it.
+      If that skill is not installed in this environment, state clearly that
+      verification was skipped and why; do not fabricate a review.
+    requires:
+      - implementation-notes
+
+  - id: report
+    generates: report.md
+    description: Final synthesis memo for the analysis
+    template: report.md
+    instruction: |
+      Create the final report synthesizing the analysis for a reader who was
+      not part of the process: the research question, identification strategy,
+      chosen package, key results, and diagnostic outcomes. Reference
+      identification.md, package-selection.md, and verification.md rather than
+      restating them - summarize and interpret, don't duplicate.
+    requires:
+      - verification
+
+apply:
+  requires: [ tasks ]
+  tracks: tasks.md
+  instruction: |
+    Read context files, work through pending tasks, mark complete as you go.
+    Pause if you hit blockers or need clarification.

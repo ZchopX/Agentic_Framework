@@ -10,12 +10,18 @@ Recommended invocation (no persistent execution-policy change):
 
 Non-interactive refresh (skip prompts, use currently-installed skill set):
   pwsh -File install-agentic-framework.ps1 -Yes
+
+Non-interactive install/refresh of the econometric team (skips the team
+prompt; -Yes alone defaults to Programming, no econ files):
+  pwsh -File install-agentic-framework.ps1 -Yes -Team Econometric
 #>
 
 [CmdletBinding(SupportsShouldProcess)]
 param(
     [string]$SourceUrl = "https://github.com/ZchopX/Agentic_Framework.git",
-    [switch]$Yes
+    [switch]$Yes,
+    [ValidateSet('Programming', 'Econometric')]
+    [string]$Team = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -116,6 +122,35 @@ function Add-IgnoreLine {
     return $true
 }
 
+function Copy-MatchingFilesIfChanged {
+    # Copies only files matching $Pattern from $Source into $Destination,
+    # without robocopy /MIR - unlike Copy-DirectoryIfChanged, this never
+    # deletes anything already in $Destination. Used for locked files (like
+    # the econ-*.md agent definitions) landing in a general-purpose directory
+    # (.claude/agents, .agents/agents) that a target repo may already have
+    # unrelated content in; a directory mirror there would silently delete it.
+    param(
+        [string]$Source,
+        [string]$Destination,
+        [string]$Pattern
+    )
+
+    if (-not (Test-Path -LiteralPath $Destination)) {
+        if (-not $PSCmdlet.ShouldProcess($Destination, "Create directory")) {
+            return "skipped"
+        }
+        New-Item -ItemType Directory -Path $Destination -Force | Out-Null
+    }
+    if (-not $PSCmdlet.ShouldProcess($Destination, "Copy $Pattern from $Source")) {
+        return "skipped"
+    }
+    robocopy $Source $Destination $Pattern /NFL /NDL /NJH /NJS | Out-Null
+    if ($LASTEXITCODE -ge 8) {
+        throw "robocopy failed with code $LASTEXITCODE syncing $Pattern from $Source -> $Destination"
+    }
+    return $(if ($LASTEXITCODE -eq 0) { "unchanged" } else { "synced" })
+}
+
 function Copy-DirectoryIfChanged {
     param(
         [string]$Source,
@@ -183,6 +218,32 @@ if ($LASTEXITCODE -eq 0 -and $originUrl) {
         exit 1
     }
 }
+
+# --- 2b. Team selection ---------------------------------------------------
+
+if ([string]::IsNullOrEmpty($Team)) {
+    if ($Yes) {
+        $Team = "Programming"
+    } else {
+        Write-Host ""
+        Write-Host "Which team should this repo install?"
+        Write-Host "  [1] Programming (default) - skills only, no econometric agents/schema"
+        Write-Host "  [2] Econometric - adds the econ-* agent team, model-test-pipeline skill, and the econometric-verified schema"
+        $teamPicked = $null
+        while ($null -eq $teamPicked) {
+            $teamAnswer = Read-Host "Enter 1/Programming or 2/Econometric (Enter = Programming)"
+            switch -Regex ($teamAnswer.Trim()) {
+                '^(1|)$'            { $teamPicked = "Programming" }
+                '^(?i)programming$' { $teamPicked = "Programming" }
+                '^2$'                { $teamPicked = "Econometric" }
+                '^(?i)econometric$' { $teamPicked = "Econometric" }
+                default              { Write-Host "Could not parse '$teamAnswer' - enter 1, 2, Programming, or Econometric." }
+            }
+        }
+        $Team = $teamPicked
+    }
+}
+$report.Add("Team: $Team")
 
 # --- 3. Clone the source repo to a temp dir ------------------------------
 
@@ -349,6 +410,9 @@ try {
     }
 
     if (-not $selected.Contains("todo")) { $selected.Add("todo") }
+    if ($Team -eq "Econometric" -and -not $selected.Contains("model-test-pipeline")) {
+        $selected.Add("model-test-pipeline")
+    }
 
     foreach ($name in ($selected | Select-Object -Unique)) {
         $src = $tagged | Where-Object { $_.Name -eq $name } | Select-Object -First 1 -ExpandProperty Source
@@ -401,6 +465,39 @@ try {
         $report.Add("Skill ${name}: $agentsResult, .claude/skills = $linkStatus")
     }
 
+    # --- 7b. Econometric team locked files (agents + schema) --------------
+
+    $econSchemaInstalledThisRun = $false
+    if ($Team -eq "Econometric") {
+        $econClaudeAgentsSrc = Join-Path $tempDir ".claude\agents"
+        $econClaudeAgentsDst = Join-Path $cwd ".claude\agents"
+        if (Test-Path -LiteralPath $econClaudeAgentsSrc) {
+            $result = Copy-MatchingFilesIfChanged -Source $econClaudeAgentsSrc -Destination $econClaudeAgentsDst -Pattern "econ-*.md"
+            $report.Add(".claude/agents (econ team): $result")
+        } else {
+            $report.Add(".claude/agents (econ team): not found in source, skipped")
+        }
+
+        $econCodexAgentsSrc = Join-Path $tempDir ".agents\agents"
+        $econCodexAgentsDst = Join-Path $cwd ".agents\agents"
+        if (Test-Path -LiteralPath $econCodexAgentsSrc) {
+            $result = Copy-MatchingFilesIfChanged -Source $econCodexAgentsSrc -Destination $econCodexAgentsDst -Pattern "econ-*.md"
+            $report.Add(".agents/agents (econ team, Codex): $result")
+        } else {
+            $report.Add(".agents/agents (econ team, Codex): not found in source, skipped")
+        }
+
+        $econSchemaSrc = Join-Path $tempDir "openspec\schemas\econometric-verified"
+        $econSchemaDst = Join-Path $cwd "openspec\schemas\econometric-verified"
+        if (Test-Path -LiteralPath $econSchemaSrc) {
+            $result = Copy-DirectoryIfChanged -Source $econSchemaSrc -Destination $econSchemaDst
+            $report.Add("openspec/schemas/econometric-verified: $result")
+            $econSchemaInstalledThisRun = Test-Path -LiteralPath (Join-Path $econSchemaDst "schema.yaml")
+        } else {
+            $report.Add("openspec/schemas/econometric-verified: not found in source, skipped")
+        }
+    }
+
     # --- 8. OpenSpec schema/skill install (step 6) ------------------------
 
     $openspecModDir = Join-Path $tempDir "openspec-mod"
@@ -448,8 +545,14 @@ try {
 
     # --- 10. Set default schema (step 7) ----------------------------------
 
+    $defaultSchemaCandidate = if ($Team -eq "Econometric") { "econometric-verified" } else { "spec-driven-verified" }
+    $schemaInstalled = if ($Team -eq "Econometric") {
+        $econSchemaInstalledThisRun
+    } else {
+        Test-Path -LiteralPath (Join-Path $env:LOCALAPPDATA "openspec\schemas\spec-driven-verified")
+    }
+
     if ((Test-Path -LiteralPath $openspecConfigPath)) {
-        $schemaInstalled = Test-Path -LiteralPath (Join-Path $env:LOCALAPPDATA "openspec\schemas\spec-driven-verified")
         if ($schemaInstalled) {
             $lines = Get-Content -LiteralPath $openspecConfigPath
             $matchIndex = -1
@@ -463,17 +566,17 @@ try {
                 $report.Add("Default schema: skipped - schema: line not found - edit openspec/config.yaml manually")
             } else {
                 $current = $lines[$matchIndex]
-                $doSet = $Yes -or $PSCmdlet.ShouldContinue("Set openspec/config.yaml default schema to 'spec-driven-verified' (currently: $current)?", "Set default OpenSpec schema")
+                $doSet = $Yes -or $PSCmdlet.ShouldContinue("Set openspec/config.yaml default schema to '$defaultSchemaCandidate' (currently: $current)?", "Set default OpenSpec schema")
                 if ($doSet) {
-                    $lines[$matchIndex] = "schema: spec-driven-verified"
+                    $lines[$matchIndex] = "schema: $defaultSchemaCandidate"
                     Set-Content -LiteralPath $openspecConfigPath -Value $lines
-                    $report.Add("Default schema: set to spec-driven-verified")
+                    $report.Add("Default schema: set to $defaultSchemaCandidate")
                 } else {
                     $report.Add("Default schema: skipped - declined")
                 }
             }
         } else {
-            $report.Add("Default schema: skipped - spec-driven-verified schema not installed")
+            $report.Add("Default schema: skipped - $defaultSchemaCandidate schema not installed")
         }
     } else {
         $report.Add("Default schema: skipped - no openspec/config.yaml")

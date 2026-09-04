@@ -18,6 +18,27 @@ BeforeAll {
         }
     }
 
+    # A git-committed snapshot of $RepoRoot's *current working tree* (not its
+    # last commit) so the -Team Econometric E2E cases exercise this session's
+    # files (.agents/agents, .claude/agents, openspec/schemas/econometric-verified)
+    # without requiring them to be committed to the real repo first.
+    function New-SnapshotSourceRepo {
+        $dir = Join-Path ([System.IO.Path]::GetTempPath()) ("agentic-e2e-snapshot-" + [System.Guid]::NewGuid().ToString("N"))
+        New-Item -ItemType Directory -Path $dir -Force | Out-Null
+        foreach ($rel in @(".claude\agents", ".agents", "openspec", "openspec-mod")) {
+            $src = Join-Path $script:RepoRoot $rel
+            if (Test-Path -LiteralPath $src) {
+                $dst = Join-Path $dir $rel
+                New-Item -ItemType Directory -Path (Split-Path $dst -Parent) -Force | Out-Null
+                Copy-Item -LiteralPath $src -Destination $dst -Recurse -Force
+            }
+        }
+        git init -q $dir
+        git -C $dir add -A | Out-Null
+        git -C $dir -c user.email="e2e@test.local" -c user.name="e2e" commit -q -m "snapshot" | Out-Null
+        $dir
+    }
+
     # Runs the installer as a real child process under the given engine.
     # powershell.exe (5.1) on this class of machine refuses to load an
     # unsigned -File script at all under the default execution policy, so
@@ -182,14 +203,120 @@ Describe "install-agentic-framework.ps1 E2E" -Tag E2E -ForEach @(
         It "reprompts once on an invalid selection, then accepts a valid one" {
             if (-not (Get-Command $Engine -ErrorAction SilentlyContinue)) { Set-ItResult -Skipped -Because "$Engine not found on PATH"; return }
 
-            # First line is an unparseable answer; second (blank) line accepts
-            # the pre-ticked default set - a valid selection per the script's
-            # own parsing rules. "todo" is force-added regardless of selection.
-            $result = Invoke-InstallerProcess -Engine $Engine -WorkingDirectory $scratch -ScriptArgs @("-SourceUrl", $script:RepoRoot) -StdIn "bogus`r`n`r`n"
+            # First blank line accepts the default team (Programming). Then,
+            # for the skill picker: an unparseable answer reprompts, and a
+            # second blank line accepts the pre-ticked default set - a valid
+            # selection per the script's own parsing rules. "todo" is
+            # force-added regardless of selection.
+            $result = Invoke-InstallerProcess -Engine $Engine -WorkingDirectory $scratch -ScriptArgs @("-SourceUrl", $script:RepoRoot) -StdIn "`r`nbogus`r`n`r`n"
 
             $result.Output | Should -Match "Could not parse 'bogus'"
             $result.ExitCode | Should -Be 0
             Test-Path (Join-Path $scratch ".agents\skills\todo") | Should -Be $true
+        }
+    }
+
+    Context "<Engine>: interactive team prompt" {
+        BeforeAll {
+            $script:scratch = New-ScratchRepo
+            git -C $scratch remote add origin "https://example.invalid/not-this-repo.git"
+        }
+        AfterAll { Remove-ScratchRepo -Path $scratch }
+
+        It "prompts for a team before installing, and Enter defaults to Programming" {
+            if (-not (Get-Command $Engine -ErrorAction SilentlyContinue)) { Set-ItResult -Skipped -Because "$Engine not found on PATH"; return }
+
+            $result = Invoke-InstallerProcess -Engine $Engine -WorkingDirectory $scratch -ScriptArgs @("-SourceUrl", $script:RepoRoot) -StdIn "`r`n`r`n"
+
+            $result.Output | Should -Match "Which team should this repo install"
+            $result.ExitCode | Should -Be 0
+            Test-Path (Join-Path $scratch ".claude\agents") | Should -Be $false
+        }
+    }
+
+    Context "<Engine>: -Team Econometric" {
+        BeforeAll {
+            $script:snapshotSource = New-SnapshotSourceRepo
+            $script:scratch = New-ScratchRepo
+            git -C $scratch remote add origin "https://example.invalid/not-this-repo.git"
+        }
+        AfterAll {
+            Remove-ScratchRepo -Path $scratch
+            Remove-ScratchRepo -Path $snapshotSource
+        }
+
+        It "installs the econ agent team, model-test-pipeline, and the econometric-verified schema, and defaults the schema to it" {
+            if (-not (Get-Command $Engine -ErrorAction SilentlyContinue)) { Set-ItResult -Skipped -Because "$Engine not found on PATH"; return }
+
+            $result = Invoke-InstallerProcess -Engine $Engine -WorkingDirectory $scratch -ScriptArgs @("-SourceUrl", $script:snapshotSource, "-Yes", "-Team", "Econometric")
+            $result.ExitCode | Should -Be 0
+
+            foreach ($role in @("econ-ceo", "econ-design", "econ-package-scout", "econ-estimation", "econ-test-writer", "econ-triage", "econ-writer")) {
+                Test-Path (Join-Path $scratch ".claude\agents\$role.md") | Should -Be $true
+                Test-Path (Join-Path $scratch ".agents\agents\$role.md") | Should -Be $true
+            }
+            Test-Path (Join-Path $scratch ".agents\skills\model-test-pipeline\SKILL.md") | Should -Be $true
+            Test-Path (Join-Path $scratch "openspec\schemas\econometric-verified\schema.yaml") | Should -Be $true
+
+            $configLines = Get-Content -LiteralPath (Join-Path $scratch "openspec\config.yaml")
+            @($configLines | Where-Object { $_ -eq "schema: econometric-verified" }).Count | Should -Be 1
+        }
+    }
+
+    Context "<Engine>: -Team Econometric does not clobber pre-existing unrelated agents" {
+        BeforeAll {
+            $script:snapshotSource = New-SnapshotSourceRepo
+            $script:scratch = New-ScratchRepo
+            git -C $scratch remote add origin "https://example.invalid/not-this-repo.git"
+            New-Item -ItemType Directory -Path (Join-Path $scratch ".claude\agents") -Force | Out-Null
+            Set-Content -LiteralPath (Join-Path $scratch ".claude\agents\my-custom-agent.md") -Value "unrelated pre-existing agent"
+            New-Item -ItemType Directory -Path (Join-Path $scratch ".agents\agents") -Force | Out-Null
+            Set-Content -LiteralPath (Join-Path $scratch ".agents\agents\my-custom-agent.md") -Value "unrelated pre-existing agent"
+        }
+        AfterAll {
+            Remove-ScratchRepo -Path $scratch
+            Remove-ScratchRepo -Path $snapshotSource
+        }
+
+        It "leaves a pre-existing unrelated .claude/agents and .agents/agents file untouched" {
+            if (-not (Get-Command $Engine -ErrorAction SilentlyContinue)) { Set-ItResult -Skipped -Because "$Engine not found on PATH"; return }
+
+            $result = Invoke-InstallerProcess -Engine $Engine -WorkingDirectory $scratch -ScriptArgs @("-SourceUrl", $script:snapshotSource, "-Yes", "-Team", "Econometric")
+            $result.ExitCode | Should -Be 0
+
+            Test-Path (Join-Path $scratch ".claude\agents\my-custom-agent.md") | Should -Be $true
+            Test-Path (Join-Path $scratch ".agents\agents\my-custom-agent.md") | Should -Be $true
+            Test-Path (Join-Path $scratch ".claude\agents\econ-ceo.md") | Should -Be $true
+            Test-Path (Join-Path $scratch ".agents\agents\econ-ceo.md") | Should -Be $true
+        }
+    }
+
+    Context "<Engine>: -Team Programming installs no econometric files" {
+        BeforeAll {
+            $script:snapshotSource = New-SnapshotSourceRepo
+            $script:scratch = New-ScratchRepo
+            git -C $scratch remote add origin "https://example.invalid/not-this-repo.git"
+        }
+        AfterAll {
+            Remove-ScratchRepo -Path $scratch
+            Remove-ScratchRepo -Path $snapshotSource
+        }
+
+        It "installs no econ agents, no model-test-pipeline, no econometric-verified schema, and defaults schema to spec-driven-verified" {
+            if (-not (Get-Command $Engine -ErrorAction SilentlyContinue)) { Set-ItResult -Skipped -Because "$Engine not found on PATH"; return }
+
+            $result = Invoke-InstallerProcess -Engine $Engine -WorkingDirectory $scratch -ScriptArgs @("-SourceUrl", $script:snapshotSource, "-Yes", "-Team", "Programming")
+            $result.ExitCode | Should -Be 0
+
+            Test-Path (Join-Path $scratch ".claude\agents") | Should -Be $false
+            Test-Path (Join-Path $scratch ".agents\agents") | Should -Be $false
+            Test-Path (Join-Path $scratch ".agents\skills\model-test-pipeline") | Should -Be $false
+            Test-Path (Join-Path $scratch "openspec\schemas\econometric-verified") | Should -Be $false
+
+            $configLines = Get-Content -LiteralPath (Join-Path $scratch "openspec\config.yaml") -ErrorAction SilentlyContinue
+            if ($configLines) {
+                @($configLines | Where-Object { $_ -eq "schema: econometric-verified" }).Count | Should -Be 0
+            }
         }
     }
 }
