@@ -82,6 +82,8 @@ For most feature work, use this sequence:
 Optional before/after:
 - `rules-template-author` (if project conventions changed)
 - `project-bootstrap` (for local setup)
+- `idea-critic` (before `prd-writer` / `feature-planner` / `openspec-propose` for new ideas; its brief is the input to `openspec-propose`)
+- `fix-validator` (for bugs, before implementing a fix)
 
 ## 4. Skill-by-Skill Guide
 
@@ -368,6 +370,44 @@ Use when:
 Typical prompt:
 - `Use statquest-ultimate to explain impulse response functions in plain English with a small example and frequent recap lines.`
 
+## N) `fix-validator`
+Path: `.agents/skills/fix-validator/SKILL.md`
+
+Use when:
+- The user reports a bug or something working wrong, or asks whether their fix idea is right, before any fix is written or merged.
+
+What it does:
+- Reproduces the bug with a red-capable check before assessing any proposed fix.
+- Forms its own root-cause hypotheses first, then evaluates the user's fix (or its own derived fix) as one candidate.
+- Tests the fix in isolation (a disposable `git worktree` or temp copy) — never touches the user's working tree.
+- Scores technical debt (SRE prevent/mitigate/process, Fowler's debt quadrant, seam, blast radius) and UX impact (NN/g severity, response-time limits) on separate, unblended rubrics.
+- Returns an evidence-backed verdict (approve, approve with follow-up, modify, reject, not a bug, needs evidence, escalate) and a handoff brief — it never implements.
+
+Typical prompt:
+- `Use fix-validator: <bug>. My fix idea is <fix>. Is it right?`
+
+Expected output:
+- A verdict with confidence level, diagnosis, technical/UX axis scoring, and a handoff brief ready to implement directly or feed into a spec tool.
+
+## O) `idea-critic`
+Path: `.agents/skills/idea-critic/SKILL.md`
+
+Use when:
+- The user proposes a new idea or feature, asks for design options, or wants an idea challenged instead of executed as-is.
+
+What it does:
+- Checks whether the idea should be built at all before considering any design.
+- Frames the real problem (problem story, baseline, job, appetite, success signal) from the product's own docs and stack, not from the user's proposed solution.
+- Critiques the idea from five independent angles (User, UX, Stack & Operator, Future Maintainer, Adversary) against the product's purpose and existing stack.
+- Offers 2-3 structurally different design options (not the same design at different sizes), each with trade-offs and a premortem.
+- Ends at an approved brief whose sections map onto OpenSpec's `proposal.md`/`design.md` — it never writes a spec, plan, or code.
+
+Typical prompt:
+- `Use idea-critic on this idea: <idea>. Challenge it before we spec it.`
+
+Expected output:
+- An idea verdict, the chosen design option with rejected alternatives, and a brief ready to hand to `openspec-propose` (or any spec tool) or paste directly.
+
 ## 8. Current Repository Note
 
 You currently have these active skills:
@@ -383,6 +423,8 @@ You currently have these active skills:
 - `atomic-commit`
 - `docx`
 - `pptx`
+- `fix-validator`
+- `idea-critic`
 - `statquest-ultimate`
 
 The file `.agents/skills/e2e-test/SKILL.md` is not present in the current repository state. Use `model-test-pipeline` for econometric-model validation workflows.
