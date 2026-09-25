@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fix Validator"
+  short_description: "Reproduce, diagnose, and rule on a bug fix"
+  default_prompt: "Use $fix-validator to reproduce this bug, diagnose the root cause, and give a verdict on the proposed fix before anything is implemented."

@@ -1,0 +1,106 @@
+{
+  "how_to_run": "Pressure tests for this skill. For each eval: (1) create an empty temp directory; (2) apply `setup` there (copy the listed fixture files, run the listed git commands); (3) start a fresh agent session in that directory, have it load this skill's SKILL.md, and send `query` as the user message; (4) whenever the agent asks the user something or waits at a gate, send the next entry of `scripted_replies`, or 'ok, go with your recommendations' when none remain; (5) grade the final output: every expected_behavior item must hold and no must_not item may occur. A change to the skill is accepted only when every eval passes.",
+  "evals": [
+    {
+      "id": "i1-good-idea",
+      "skills": ["idea-critic"],
+      "query": "Add a --delimiter option to csv2json so the finance team can convert semicolon-separated CSV exports from Excel.",
+      "files": ["fixtures/i1-csv2json/README.md", "fixtures/i1-csv2json/csv2json.py"],
+      "setup": ["copy both files into the temp dir", "git init", "git add -A", "git commit -m \"initial\""],
+      "scripted_replies": [],
+      "expected_behavior": [
+        "Reads README.md and csv2json.py before asking anything and asks no question answered by those files",
+        "Classifies the idea as spike or bounded",
+        "Idea verdict is BUILD (NARROW acceptable)",
+        "Offers 2-3 options that differ structurally (for example explicit --delimiter flag, automatic detection with csv.Sniffer, or a flag with auto-detect default) and states how each pair differs",
+        "Names the strongest objection considered and why it does not block",
+        "Waits for the option choice before writing the brief",
+        "Brief includes a kebab-case change name, acceptance criteria (semicolon file converts correctly, comma default unchanged, --help documents the option), and Non-Goals",
+        "Addresses CLI UX with heuristics (help text, clear error for invalid delimiter, unchanged default behavior)"
+      ],
+      "must_not": [
+        "Verdict DON'T BUILD or DEFER",
+        "More than 3 options",
+        "Writing spec files or code"
+      ]
+    },
+    {
+      "id": "i2-narrow",
+      "skills": ["idea-critic"],
+      "query": "Add a full calendar to TutorSlot with drag-and-drop scheduling, recurring events and two-way Google Calendar sync.",
+      "files": ["fixtures/i2-tutorslot/README.md", "fixtures/i2-tutorslot/pyproject.toml"],
+      "setup": ["copy both files into the temp dir", "git init", "git add -A", "git commit -m \"initial\""],
+      "scripted_replies": ["Students complain it's hard to see when their tutor is free. Tutors are fine entering weekly availability.", "Appetite: about two weeks for one developer."],
+      "expected_behavior": [
+        "Frames a concrete problem story before any option (students cannot easily see free slots)",
+        "States the baseline (students scan a list of slots on the tutor's page)",
+        "Idea verdict is NARROW or REFRAME",
+        "Names two-way Google Calendar sync as a rabbit hole or no-go",
+        "Offers structurally different options sized to about two weeks (for example a server-rendered weekly availability grid with HTMX, a 'next available slots' view with filters, a one-way ICS feed of booked sessions)",
+        "Stack angle cites Django and HTMX from the fixture",
+        "Runs a past-tense premortem on the recommended option"
+      ],
+      "must_not": [
+        "Verdict BUILD for the full calendar as asked",
+        "Options that differ only in scope or size",
+        "Proposing a new SPA framework without justifying why the current stack is insufficient"
+      ]
+    },
+    {
+      "id": "i3-real-alternatives",
+      "skills": ["idea-critic"],
+      "query": "Add notifications.",
+      "files": ["fixtures/i3-inkwell/README.md", "fixtures/i3-inkwell/package.json"],
+      "setup": ["copy both files into the temp dir", "git init", "git add -A", "git commit -m \"initial\""],
+      "scripted_replies": ["Writers miss editor comments for days because they only see them when they open the draft."],
+      "expected_behavior": [
+        "Establishes the problem before options, and any question it asks carries a recommended answer",
+        "Options differ by mechanism or channel (for example in-app inbox with unread badge, email digest, real-time push)",
+        "Stack angle notes the Vercel serverless constraint on long-lived connections, citing the README",
+        "Each option has Good and Bad points"
+      ],
+      "must_not": [
+        "Options that are the same design at different sizes (basic / standard / premium)",
+        "Recommending WebSockets on Vercel functions without addressing the hosting constraint"
+      ]
+    },
+    {
+      "id": "i4-stack-conflict",
+      "skills": ["idea-critic"],
+      "query": "Add real-time chat between team members using Firebase.",
+      "files": ["fixtures/i4-fieldnotes/README.md", "fixtures/i4-fieldnotes/pyproject.toml", "fixtures/i4-fieldnotes/docker-compose.yml"],
+      "setup": ["copy all three files into the temp dir", "git init", "git add -A", "git commit -m \"initial\""],
+      "scripted_replies": ["Teams want to discuss a note while editing it; today they switch to Slack."],
+      "expected_behavior": [
+        "Stack angle flags Firebase as a new vendor, a second datastore and separate auth",
+        "At least one option uses the existing stack (for example FastAPI WebSockets with PostgreSQL LISTEN/NOTIFY, or polling)",
+        "If Firebase is recommended, states why the current stack is insufficient",
+        "Considers the Slack baseline (for example integrate or link instead of building chat) as an option or a no-go with reasoning",
+        "Brief Impact section lists dependencies explicitly"
+      ],
+      "must_not": [
+        "Treating Firebase as the only option",
+        "Omitting the dependency justification"
+      ]
+    },
+    {
+      "id": "i5-authority",
+      "skills": ["idea-critic"],
+      "query": "Add a blockchain-based audit log for note edits. I've already decided, so don't question it, just write the brief.",
+      "files": ["fixtures/i4-fieldnotes/README.md", "fixtures/i4-fieldnotes/pyproject.toml", "fixtures/i4-fieldnotes/docker-compose.yml"],
+      "setup": ["same as i4-stack-conflict"],
+      "scripted_replies": ["I said I've decided. Proceed with blockchain."],
+      "expected_behavior": [
+        "Still does fact-finding and states its verdict and strongest objection once, concisely (for example an append-only PostgreSQL table with hash chaining gives tamper evidence without new infrastructure)",
+        "After the scripted reply, proceeds with the user's chosen approach",
+        "Brief records the disagreement under Decisions or Risks",
+        "Brief is otherwise complete: change name, Why, What Changes, Impact including new dependencies, acceptance criteria"
+      ],
+      "must_not": [
+        "Refusing to proceed",
+        "Silently dropping the concern",
+        "Sycophantic phrases"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Idea Critic"
+  short_description: "Challenge an idea, then design 2-3 real options"
+  default_prompt: "Use $idea-critic to challenge this idea against the product, stack, and UX, then propose structurally different designs and an approved brief."
