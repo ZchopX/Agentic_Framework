@@ -11,5 +11,9 @@
 ### Checks Run
 - <command or inspection> — <result>
 
+### Rules Conformance
+- <rule file> — <followed | violated: what>
+- None cited
+
 ### Residual Risk
 - <risk, or "None">

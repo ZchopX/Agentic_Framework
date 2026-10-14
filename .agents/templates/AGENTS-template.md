@@ -8,6 +8,18 @@ This template defines project guidance for Codex agents working in this reposito
 
 {Project purpose and scope}
 
+## Repo rules
+
+<!-- Index every written rule file (UI/UX standards, changelog rules, conventions). Delete the placeholder row if the repo has none. -->
+
+| Rule file | Summary | Applies when |
+|-----------|---------|--------------|
+| {path/to/rules.md} | {one-line summary} | {observable condition} |
+
+"Applies when" must be a condition a reader can test against a change, such as "touches files under `<path>`" or "adds or edits `<API or construct>`", not a topic such as "UI changes".
+
+Before writing a proposal, design or tasks, read every rule file whose "Applies when" matches the change, constrain the artifact by it, and state in the artifact how it was applied (a "Rules applied" section).
+
 ## Tech Stack
 
 | Technology | Purpose |

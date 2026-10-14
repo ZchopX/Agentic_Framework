@@ -17,3 +17,9 @@
 ## Risks / Trade-offs
 
 <!-- Known risks and trade-offs -->
+
+## Rules applied
+
+<!-- Rule files from AGENTS.md "Repo rules" that matched this change -->
+- <rule file> → <how it shaped this artifact>
+- none apply: <why>

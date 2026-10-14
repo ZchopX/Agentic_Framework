@@ -17,6 +17,7 @@ Maintain a reusable AGENTS template tailored to this repository.
 ## Template Must Cover
 - Project overview and architecture summary
 - Standard commands (dev, test, lint, build)
+- Repo rules section (index of rule files with 'Applies when' triggers) and its consult-and-apply requirement
 - File and module organization rules
 - Error handling and testing expectations
 - Pre-merge validation checklist

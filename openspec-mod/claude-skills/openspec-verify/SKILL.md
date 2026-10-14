@@ -34,6 +34,7 @@ This is a standalone copy adapted for the OpenSpec filing system. It is not an e
    - Read `references/plan-implementation-review.md` as the prompt template.
    - Fill it with: repository root, `changeRoot`, the change's `proposal.md`/`specs/`/`design.md`/`tasks.md` paths (from `artifactPaths`) in place of "Plan path", `Execution handoff: none`, changed file paths, validation commands already run with pass/fail status, artifact paths that need inspection, and the user's requested outcome.
    - Keep the filled prompt evidence-oriented: ask the sub-agent to inspect files, diffs, the proposal/specs/design/tasks, and artifacts directly.
+   - If any artifact has a "Rules applied" section, add each cited rule file to "Artifacts to inspect" and "Known constraints" so the reviewer checks the change against it.
    - Make the sub-agent role explicitly read-only. The sub-agent must not modify files, rewrite artifacts, run formatters that change files, or apply fixes. Only the main agent triages findings and applies valid corrections.
    - Do not include the main agent's intended fixes, suspected conclusions, or self-evaluation.
 

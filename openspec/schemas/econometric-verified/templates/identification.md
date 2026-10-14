@@ -26,3 +26,9 @@
 
 <!-- What kind of standard errors the data structure requires (robust,
      clustered, HAC, panel-corrected) and why. -->
+
+## Rules applied
+
+<!-- Rule files from AGENTS.md "Repo rules" that matched this change -->
+- <rule file> → <how it shaped this artifact>
+- none apply: <why>

@@ -27,3 +27,9 @@
 ## Impact
 
 <!-- Affected code, APIs, dependencies, systems -->
+
+## Rules applied
+
+<!-- Rule files from AGENTS.md "Repo rules" that matched this change -->
+- <rule file> → <how it shaped this artifact>
+- none apply: <why>

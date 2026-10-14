@@ -7,3 +7,9 @@
 
 - [ ] 2.1 <!-- Task description -->
 - [ ] 2.2 <!-- Task description -->
+
+## Rules applied
+
+<!-- Rule files from AGENTS.md "Repo rules" that matched this change -->
+- <rule file> → <how it shaped this artifact>
+- none apply: <why>

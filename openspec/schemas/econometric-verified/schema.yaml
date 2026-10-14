@@ -35,6 +35,8 @@ artifacts:
 
       This is the foundation - identification, package-selection, specs, and
       tasks all build on this.
+
+      Repo rules: if the repository's AGENTS.md has a "Repo rules" section, read in full every rule file whose "Applies when" condition matches this change. Treat each as a constraint on this artifact: let it shape the content, not just appear in it. End the artifact with a "Rules applied" section listing `<rule file> → <how it shaped this artifact>`, or `none apply: <why>`. If AGENTS.md has no "Repo rules" section, skip this step.
     requires: []
 
   - id: specs
@@ -166,6 +168,8 @@ artifacts:
 
       This is the foundation for package-selection and implementation-notes.
       A downstream failure traced back to a gap here reopens this artifact.
+
+      Repo rules: if the repository's AGENTS.md has a "Repo rules" section, read in full every rule file whose "Applies when" condition matches this change. Treat each as a constraint on this artifact: let it shape the content, not just appear in it. End the artifact with a "Rules applied" section listing `<rule file> → <how it shaped this artifact>`, or `none apply: <why>`. If AGENTS.md has no "Repo rules" section, skip this step.
     requires:
       - proposal
 
@@ -234,6 +238,8 @@ artifacts:
       Reference specs for what needs to be built, identification.md for the
       required diagnostics and error structure, package-selection.md for the
       chosen implementation.
+
+      Repo rules: if the repository's AGENTS.md has a "Repo rules" section, read in full every rule file whose "Applies when" condition matches this change. Treat each as a constraint on this artifact: let it shape the content, not just appear in it. End the artifact with a "Rules applied" section listing `<rule file> → <how it shaped this artifact>`, or `none apply: <why>`. If AGENTS.md has no "Repo rules" section, skip this step.
     requires:
       - specs
 
@@ -276,6 +282,9 @@ artifacts:
       archived. For this schema, verification also confirms every item in
       identification.md's Required Diagnostics has a passing test and that
       implementation-notes.md's Requirement Mapping is accurate.
+
+      If the change's artifacts have a 'Rules applied' section, also confirm each
+      cited rule was followed.
 
       Do not write this file by hand - the openspec-verify skill produces it.
       If that skill is not installed in this environment, state clearly that
