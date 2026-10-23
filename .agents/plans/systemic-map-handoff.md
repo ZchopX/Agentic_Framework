@@ -254,7 +254,7 @@ Use **content hashes**, not commit SHAs (`verified_at: <commit>` dies on squash/
 | 3 | Skill location | `.agents/skills/systemic-map/` in this repo for now; move to a separate repo (pulled from there) if it grows too big. |
 | 4 | Enforcement | **Decided: option 2.** A git pre-commit hook that runs `map check` and prints a warning, never blocks (bypass not needed because it cannot fail the commit). Revisit CI-blocking after the replay harness shows a low false-positive rate. The new OpenSpec schema must still do everything it can to make the AI follow the skill and build the map (see 13.10). |
 | 5 | Research synthesis | Meant as an input to the build process, not a publication. Any visual rendering should be a human-readable scheme. No separate shareable page is required. |
-| 6 | Seam storage | **Open, needs deeper research.** Constraint: a separate `seams.yaml` is rejected as likely to be ignored by the AI; prefer integration into OpenSpec (plus hooks if needed) or a better option. See 13.11. |
+| 6 | Seam storage | **Decided:** the contract note for a seam lives as an OpenSpec requirement in `openspec/specs/<capability>/spec.md`; the seam links to it by requirement title. Seams with no requirement fall back to derived facts only, and the checker gives an advisory flag (many error paths, no contract) and a stale-link warning. No standalone `seams.yaml`. Link format and checker rule go to `design.md`. Research: 13.11. |
 | 7 | Formats (`scanners.yaml`, skeleton) | Study available material on the web and pick the best; do not invent. |
 | 8 | Python extractor | Use both `ast` and tree-sitter unless they conflict. Rule: `ast` wins for exceptions, tree-sitter for hashes. Start with `ast`; add tree-sitter when justified. |
 | 9 | Snapshot with `spec-driven-verified` | Test during the build. |
@@ -267,7 +267,7 @@ Use **content hashes**, not commit SHAs (`verified_at: <commit>` dies on squash/
 ### 13.10 Requirement: the new OpenSpec schema enforces the skill
 The schema (and its `tasks`, `verification` instructions, `openspec-verify`, config guidance) must do everything possible to make the AI follow the systemic-map skill and keep the map current. The mechanisms are soft (a checkbox task, a verification step, guidance lines) unless a git/CI gate is added; the enforcement level (item 4) is still to be chosen. Every map instruction stays conditional on `.map/` existing.
 
-### 13.11 Seam storage: research brief and findings
+### 13.11 Seam storage: research brief and findings (decision: see 13.8 row 6)
 Seam facts are derived (edges crossing a boundary). Only the optional *contract note* needs a home. User rejected a standalone `seams.yaml` (AI may ignore it) and wants integration with OpenSpec, with hooks if needed, or something better. Candidate: express the contract as an OpenSpec requirement in `openspec/specs/<capability>/spec.md` (existing format: `### Requirement: ... SHALL ...` + `#### Scenario: WHEN/THEN`, e.g. `openspec/specs/cross-repo-installer/team-selection/spec.md`), and have the map link the seam to that requirement by title anchor. Coverage gap: this repo has only 4 spec files, so most seams would have no requirement and fall back to derived facts only (checker flags a seam with many error paths and no linked requirement, advisory).
 
 How other tools store boundary contracts (web research 2026-10-23; sources are official docs, fetched):
