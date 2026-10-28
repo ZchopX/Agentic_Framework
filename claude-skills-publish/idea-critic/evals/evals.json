@@ -30,13 +30,13 @@
       "query": "Add a full calendar to TutorSlot with drag-and-drop scheduling, recurring events and two-way Google Calendar sync.",
       "files": ["fixtures/i2-tutorslot/README.md", "fixtures/i2-tutorslot/pyproject.toml"],
       "setup": ["copy both files into the temp dir", "git init", "git add -A", "git commit -m \"initial\""],
-      "scripted_replies": ["Students complain it's hard to see when their tutor is free. Tutors are fine entering weekly availability.", "Appetite: about two weeks for one developer."],
+      "scripted_replies": ["Students complain it's hard to see when their tutor is free. Tutors are fine entering weekly availability.", "Blast radius: about 5 files, one module."],
       "expected_behavior": [
         "Frames a concrete problem story before any option (students cannot easily see free slots)",
         "States the baseline (students scan a list of slots on the tutor's page)",
         "Idea verdict is NARROW or REFRAME",
         "Names two-way Google Calendar sync as a rabbit hole or no-go",
-        "Offers structurally different options sized to about two weeks (for example a server-rendered weekly availability grid with HTMX, a 'next available slots' view with filters, a one-way ICS feed of booked sessions)",
+        "Offers structurally different options sized to about 5 files in one module (for example a server-rendered weekly availability grid with HTMX, a 'next available slots' view with filters, a one-way ICS feed of booked sessions)",
         "Stack angle cites Django and HTMX from the fixture",
         "Runs a past-tense premortem on the recommended option"
       ],
