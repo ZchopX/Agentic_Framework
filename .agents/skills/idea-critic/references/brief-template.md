@@ -8,7 +8,7 @@ Section names are generic and widely recognized (design-doc style: Why, What Cha
 # Idea Brief: <title>
 Change name: <kebab-case>
 Idea verdict: BUILD | NARROW | REFRAME (from: <original idea>)
-Classification: spike | bounded | architectural · Appetite: <...>
+Classification: spike | bounded | architectural · Blast radius: <max files / modules / outcomes>
 
 ## Why
 - Problem story: <...>

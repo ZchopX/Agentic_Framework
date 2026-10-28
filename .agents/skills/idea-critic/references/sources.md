@@ -5,7 +5,7 @@
 - mattpocock/skills prototype/UI.md: https://raw.githubusercontent.com/mattpocock/skills/main/skills/engineering/prototype/UI.md — radically different variants, regenerate with exclusion.
 - mattpocock/skills to-spec: https://raw.githubusercontent.com/mattpocock/skills/main/skills/engineering/to-spec/SKILL.md — spec writing belongs downstream.
 - Anthropic skill-authoring best practices: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices
-- Shape Up ch. 3: https://basecamp.com/shapeup/1.2-chapter-03, ch. 5: https://basecamp.com/shapeup/1.4-chapter-05, ch. 6: https://basecamp.com/shapeup/1.5-chapter-06 — appetite, problem story, baseline, rabbit holes, no-gos.
+- Shape Up ch. 3: https://basecamp.com/shapeup/1.2-chapter-03, ch. 5: https://basecamp.com/shapeup/1.4-chapter-05, ch. 6: https://basecamp.com/shapeup/1.5-chapter-06 — problem story, baseline, rabbit holes, no-gos.
 - Klein, Performing a Project Premortem: https://hbr.org/2007/09/performing-a-project-premortem
 - MADR: https://adr.github.io/madr/ — considered options, Good/Neutral/Bad.
 - Design Docs at Google: https://www.industrialempathy.com/posts/design-docs-at-google/ — alternatives considered, non-goals.

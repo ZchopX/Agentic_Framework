@@ -32,7 +32,7 @@ NEVER ASK THE USER FOR A FACT YOU CAN LOOK UP.
 - Ask in rounds: numbered, at most 4 per round, each followed by `Recommended: <answer> — <one-line reason>`. Hold back questions that depend on unanswered ones. Tell the user they can reply "ok" to accept all recommendations.
 - After each round, restate the resolved decisions, one line each.
 - For low-impact unknowns, do not ask. Record `Assumption: <...>` instead.
-- Decisions that belong to the user: appetite, priorities, success signal, choice between options, overriding a verdict.
+- Decisions that belong to the user: blast radius, priorities, success signal, choice between options, overriding a verdict.
 
 ## Workflow
 
@@ -40,7 +40,7 @@ NEVER ASK THE USER FOR A FACT YOU CAN LOOK UP.
 - [ ] Phase 0 Intake: one-sentence idea, user framing parked
 - [ ] Phase 1 Classify: spike | bounded | architectural
 - [ ] Phase 2 Fact-finding (silent): product purpose, stack, overlapping features
-- [ ] Phase 3 Frame: problem story, baseline, job, appetite, success signal
+- [ ] Phase 3 Frame: problem story, baseline, job, blast radius, success signal
 - [ ] Phase 4 Independent angle critique + assumption audit
 - [ ] Phase 5 Idea verdict  ← GATE: user decides
 - [ ] Phase 6 Design decision rounds
@@ -76,7 +76,7 @@ Tag every fact `evidence (<file>)`, `analogy`, or `intuition`. If the product pu
 - **problem story:** one specific story showing where the status quo fails, meaning who, trying to do what, breaking where.
 - **baseline:** what users do today without this, and what doing nothing costs.
 - **job:** the progress the user is trying to make.
-- **appetite:** how much this is worth (for example, "2 days" or "2 weeks for one developer"). Not an estimate. It is a user decision; ask it with a recommendation.
+- **blast radius:** how much one change may touch: files, modules, and independently shippable outcomes. Work is done and reviewed by agents, so build time is not the constraint; agent context and reviewability are. It is a user decision; ask it with a recommendation. Default recommendation: about 5 files or 1–2 modules, one reviewable and independently mergeable outcome, each task completable in one agent session. Tag these numbers `intuition` (no official OpenSpec limit exists; ">5 files, split" is community opinion). Anything that bundles separately shippable outcomes should be split into stacked changes.
 - **success signal:** an observable sign that it worked.
 
 If a concrete story cannot be written, that is a finding: it points toward REFRAME or DEFER.
@@ -97,7 +97,7 @@ If a concrete story cannot be written, that is a finding: it points toward REFRA
 
 **Phase 7: Options.** Follow `frameworks.md` §Options:
 - The count comes from the class; the cap is 3.
-- Every option is sized to the appetite.
+- Every option is sized to the blast radius, with an estimated file and module count (confirmed against the real file list at proposal time).
 - Each pair must differ structurally. Write "Options <A> and <B> differ in: <mechanism | data model or state location | primary interaction | build vs reuse vs integrate | where in the stack>". If the only difference is size, polish, or naming, regenerate one option with an explicit exclusion ("must not use <shared mechanism>").
 - If the fact sheet found a partial existing solution, one option must be "reuse or extend <existing thing>".
 - Use the MADR block for each option.
